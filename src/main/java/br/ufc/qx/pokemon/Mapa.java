@@ -29,7 +29,7 @@ public class Mapa {
   }
 
   public void exibirMapa(int x, int y) {
-    char anterior = this.mapa[x][y];
+    char anterior = this.mapa[y][x];
     this.mapa[y][x] = 'T';
     for (int i = 0; i < this.mapa.length; i++) {
       System.out.print("|");

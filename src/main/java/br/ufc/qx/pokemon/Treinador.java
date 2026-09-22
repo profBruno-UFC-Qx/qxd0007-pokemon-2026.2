@@ -40,13 +40,13 @@ public class Treinador {
   }
 
   public void listar() {
-    for(Pokemon pokemon : pokemons) {
-      System.out.println(pokemon);
+    for (int i = 0; i < qtdPokemons; i++) {
+      System.out.println(pokemons[i]);
     }
   }
 
   public boolean capturar(Pokemon pokemon) {
-    if(pokemons[pokemons.length - 1] == null) {
+    if (qtdPokemons < pokemons.length) {
       pokemons[qtdPokemons++] = pokemon;
       return true;
     }

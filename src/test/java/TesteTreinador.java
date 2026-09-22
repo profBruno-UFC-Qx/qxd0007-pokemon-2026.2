@@ -8,7 +8,7 @@ public class TesteTreinador {
   @Test
   public void moverParaBaixo() {
     Treinador treinador = new Treinador("Ash");
-    treinador.mover("BAIXO");
+    treinador.moverPara(0, 1);
     assertEquals(treinador.getX(), 0);
     assertEquals(treinador.getY(), 1);
   }
