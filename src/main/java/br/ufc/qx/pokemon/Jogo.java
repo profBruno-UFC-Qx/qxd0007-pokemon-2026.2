@@ -14,29 +14,31 @@ public class Jogo {
 
   public void iniciar() {
     Scanner scanner = new Scanner(System.in);
-    String opcao;
+    Direcao direcao = null;
     int novoX = treinador.getX();
     int novoY = treinador.getY();
     do {
       mapa.exibirMapa(treinador.getX(), treinador.getY());
       System.out.println("Informe a direção para onde queres ir");
-      opcao = scanner.nextLine();
-      if (opcao.equalsIgnoreCase("CIMA")) {
-        novoY = treinador.getY() - 1;
-      } else if (opcao.equalsIgnoreCase("BAIXO")) {
-        novoY = treinador.getY() + 1;
-      } else if (opcao.equalsIgnoreCase("DIR")) {
-        novoX = treinador.getX() + 1;
-      } else if (opcao.equalsIgnoreCase("ESQ")) {
-        novoX = treinador.getX() - 1;
-      } else if (!opcao.equalsIgnoreCase("SAIR")) {
+      String opcao = scanner.nextLine();
+      try {
+        direcao = Direcao.valueOf(opcao.toUpperCase());
+      } catch (IllegalArgumentException e) {
         System.out.println("Valor invalido");
+        continue;
       }
-      if(mapa.ePosicaoValida(novoX, novoY)) {
+      switch (direcao) {
+        case CIMA -> novoY = treinador.getY() - 1;
+        case BAIXO -> novoY = treinador.getY() + 1;
+        case DIR -> novoX = treinador.getX() + 1;
+        case ESQ -> novoX = treinador.getX() - 1;
+        case SAIR -> {}
+      }
+      if (mapa.ePosicaoValida(novoX, novoY)) {
         treinador.moverPara(novoX, novoY);
       }
 
-    } while("sair".equals(opcao) == false);
+    } while (direcao != Direcao.SAIR);
 
   }
 }

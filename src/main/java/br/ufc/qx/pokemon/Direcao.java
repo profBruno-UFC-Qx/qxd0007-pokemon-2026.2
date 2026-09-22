@@ -1,5 +1,5 @@
 package br.ufc.qx.pokemon;
 
 public enum Direcao {
-  CIMA, BAIXO, ESQUERDA, DIREITA
+  CIMA, BAIXO, ESQ, DIR, SAIR
 }
