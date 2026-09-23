@@ -1,4 +1,5 @@
-import br.ufc.qx.pokemon.Pokemon;
+package br.ufc.qx.pokemon;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

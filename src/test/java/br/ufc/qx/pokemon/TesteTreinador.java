@@ -1,5 +1,5 @@
-import br.ufc.qx.pokemon.Pokemon;
-import br.ufc.qx.pokemon.Treinador;
+package br.ufc.qx.pokemon;
+
 import br.ufc.qx.pokemon.mapa.Posicao;
 import org.junit.jupiter.api.Test;
 

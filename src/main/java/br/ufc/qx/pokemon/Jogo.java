@@ -24,24 +24,10 @@ public class Jogo {
     return mapa.renderizar(treinador.getPosicao());
   }
 
-  public Direcao processarComando(String opcao) {
-    Direcao direcao;
-    try {
-      direcao = Direcao.valueOf(opcao.toUpperCase());
-    } catch (IllegalArgumentException e) {
-      return null;
-    }
-    Posicao atual = treinador.getPosicao();
-    Posicao destino = switch (direcao) {
-      case CIMA -> atual.deslocar(0, -1);
-      case BAIXO -> atual.deslocar(0, 1);
-      case DIR -> atual.deslocar(1, 0);
-      case ESQ -> atual.deslocar(-1, 0);
-      case SAIR -> atual;
-    };
+  public void mover(Direcao direcao) {
+    Posicao destino = direcao.aplicarEm(treinador.getPosicao());
     if (mapa.ePosicaoValida(destino)) {
       treinador.moverPara(destino);
     }
-    return direcao;
   }
 }
