@@ -3,6 +3,11 @@ package br.ufc.qx.pokemon;
 import java.util.Objects;
 
 public class Pokemon {
+
+  private static final int NIVEL_INICIAL = 1;
+  private static final float ALTURA_PADRAO = 10f;
+  private static final float PESO_PADRAO = 10f;
+
   private final String name;
   private float height;
   private float weight;
@@ -12,11 +17,11 @@ public class Pokemon {
   private final int level;
 
   public Pokemon(String name, float height, float weight, String types) {
-    this(name, height, weight, types, 1);
+    this(name, height, weight, types, NIVEL_INICIAL);
   }
 
   public Pokemon(String name, String types, int level) {
-    this(name, 10f, 10f, types, level);
+    this(name, ALTURA_PADRAO, PESO_PADRAO, types, level);
   }
 
   private Pokemon(String name, float height, float weight, String types, int level) {

@@ -4,12 +4,15 @@ import br.ufc.qx.pokemon.mapa.Mapa;
 
 public class Jogo {
 
+  private static final int LARGURA_MAPA = 10;
+  private static final int ALTURA_MAPA = 5;
+
   private Treinador treinador;
   private Mapa mapa;
 
   public Jogo(String nome) {
     treinador = new Treinador(nome);
-    mapa = new Mapa(10, 5);
+    mapa = new Mapa(LARGURA_MAPA, ALTURA_MAPA);
   }
 
   public Treinador getTreinador() {

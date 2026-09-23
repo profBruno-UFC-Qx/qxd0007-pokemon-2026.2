@@ -4,6 +4,11 @@ import java.util.Random;
 
 public class Mapa {
 
+  private static final double PROBABILIDADE_LIVRE = 0.8;
+  private static final char LIVRE = ' ';
+  private static final char GRAMA = 'w';
+  private static final char TREINADOR = 'T';
+
   private char[][] mapa;
   private final int largura;
   private final int altura;
@@ -22,10 +27,10 @@ public class Mapa {
   private void inicializarMapa(Random r) {
     for (int i = 0; i < this.mapa.length; i++) {
       for (int j = 0; j < this.mapa[i].length; j++) {
-        if(r.nextFloat() < 0.8) {
-          this.mapa[i][j] = ' ';
+        if(r.nextFloat() < PROBABILIDADE_LIVRE) {
+          this.mapa[i][j] = LIVRE;
         } else {
-          this.mapa[i][j] = 'w';
+          this.mapa[i][j] = GRAMA;
         }
       }
     }
@@ -36,7 +41,7 @@ public class Mapa {
     for (int i = 0; i < this.altura; i++) {
       sb.append('|');
       for (int j = 0; j < this.largura; j++) {
-        sb.append(i == y && j == x ? 'T' : this.mapa[i][j]).append(' ');
+        sb.append(i == y && j == x ? TREINADOR : this.mapa[i][j]).append(' ');
       }
       sb.append("|\n");
     }

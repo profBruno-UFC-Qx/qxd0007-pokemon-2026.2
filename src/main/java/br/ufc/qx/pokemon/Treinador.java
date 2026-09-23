@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Treinador {
 
+  private static final int MAX_POKEMONS = 6;
+
   private String nome;
   private int x,y;
   private Pokemon[] pokemons;
@@ -14,7 +16,7 @@ public class Treinador {
     this.nome = nome;
     this.x = 0;
     this.y = 0;
-    this.pokemons = new Pokemon[6];
+    this.pokemons = new Pokemon[MAX_POKEMONS];
   }
 
   public String getNome() {
