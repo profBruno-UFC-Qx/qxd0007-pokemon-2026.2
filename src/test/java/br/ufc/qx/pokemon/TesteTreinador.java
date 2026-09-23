@@ -35,7 +35,7 @@ public class TesteTreinador {
   public void capturarAdicionaPokemonEnquantoHouverEspaco() {
     Treinador treinador = new Treinador("Ash");
     for (int i = 0; i < 6; i++) {
-      assertTrue(treinador.capturar(new Pokemon("Pokemon" + i, "normal", 1)));
+      assertTrue(treinador.capturar(new Pokemon("Pokemon" + i, 1)));
     }
   }
 
@@ -43,15 +43,15 @@ public class TesteTreinador {
   public void capturarFalhaQuandoEquipeEstaCheia() {
     Treinador treinador = new Treinador("Ash");
     for (int i = 0; i < 6; i++) {
-      treinador.capturar(new Pokemon("Pokemon" + i, "normal", 1));
+      treinador.capturar(new Pokemon("Pokemon" + i, 1));
     }
-    assertFalse(treinador.capturar(new Pokemon("Extra", "normal", 1)));
+    assertFalse(treinador.capturar(new Pokemon("Extra", 1)));
   }
 
   @Test
   public void getPokemonsDevolveApenasOsPokemonsCapturados() {
     Treinador treinador = new Treinador("Ash");
-    Pokemon pikachu = new Pokemon("Pikachu", "electric", 5);
+    Pokemon pikachu = new Pokemon("Pikachu", 5);
     treinador.capturar(pikachu);
 
     List<Pokemon> pokemons = treinador.getPokemons();
@@ -71,6 +71,6 @@ public class TesteTreinador {
     Treinador treinador = new Treinador("Ash");
 
     assertThrows(UnsupportedOperationException.class,
-        () -> treinador.getPokemons().add(new Pokemon("Intruso", "normal", 1)));
+        () -> treinador.getPokemons().add(new Pokemon("Intruso", 1)));
   }
 }

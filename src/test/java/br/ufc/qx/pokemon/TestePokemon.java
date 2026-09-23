@@ -8,7 +8,7 @@ public class TestePokemon {
 
   @Test
   public void pokemonNasceComVidaCheiaEmFuncaoDoNivel() {
-    Pokemon pikachu = new Pokemon("Pikachu", "electric", 5);
+    Pokemon pikachu = new Pokemon("Pikachu", 5);
 
     // level * (25 + level) = 5 * 30
     assertEquals(150, pikachu.getHp());
@@ -16,7 +16,7 @@ public class TestePokemon {
 
   @Test
   public void pokemonCriadoSemNivelComecaNoNivelUm() {
-    Pokemon bulbasaur = new Pokemon("Bulbasaur", 0.7f, 6.9f, "grass/poison");
+    Pokemon bulbasaur = new Pokemon("Bulbasaur");
 
     // level * (25 + level) = 1 * 26
     assertEquals(26, bulbasaur.getHp());
@@ -24,7 +24,7 @@ public class TestePokemon {
 
   @Test
   public void setHpAcimaDoMaximoEIgnorado() {
-    Pokemon pikachu = new Pokemon("Pikachu", "electric", 5);
+    Pokemon pikachu = new Pokemon("Pikachu", 5);
 
     pikachu.setHp(151);
 
@@ -33,7 +33,7 @@ public class TestePokemon {
 
   @Test
   public void setHpAbaixoDoMaximoEAceito() {
-    Pokemon pikachu = new Pokemon("Pikachu", "electric", 5);
+    Pokemon pikachu = new Pokemon("Pikachu", 5);
 
     pikachu.setHp(40);
 
