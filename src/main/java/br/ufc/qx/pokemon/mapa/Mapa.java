@@ -9,7 +9,7 @@ public class Mapa {
   private static final char GRAMA = 'w';
   private static final char TREINADOR = 'T';
 
-  private char[][] mapa;
+  private final char[][] mapa;
   private final int largura;
   private final int altura;
 
@@ -25,8 +25,8 @@ public class Mapa {
   }
 
   private void inicializarMapa(Random r) {
-    for (int i = 0; i < this.mapa.length; i++) {
-      for (int j = 0; j < this.mapa[i].length; j++) {
+    for (int i = 0; i < this.altura; i++) {
+      for (int j = 0; j < this.largura; j++) {
         if(r.nextFloat() < PROBABILIDADE_LIVRE) {
           this.mapa[i][j] = LIVRE;
         } else {

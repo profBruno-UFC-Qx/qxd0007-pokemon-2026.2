@@ -34,6 +34,19 @@ public class TesteMapa {
   }
 
   @Test
+  public void renderizarPreencheTodasAsCelulasDeUmMapaNaoQuadrado() {
+    Mapa mapa = new Mapa(10, 5);
+
+    String[] linhas = mapa.renderizar(new Posicao(0, 0)).split("\n");
+
+    for (String linha : linhas) {
+      // '|' + 10 células de 2 caracteres + '|'
+      assertEquals(1 + 10 * 2 + 1, linha.length());
+      assertFalse(linha.contains("\u0000"), "Toda célula deveria ter sido inicializada");
+    }
+  }
+
+  @Test
   public void renderizarMarcaTreinadorNaPosicaoInformada() {
     Mapa mapa = new Mapa(4, 3, new Random(1));
 
