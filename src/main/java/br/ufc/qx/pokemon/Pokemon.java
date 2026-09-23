@@ -7,16 +7,25 @@ public class Pokemon {
   private float height;
   private float weight;
   private int hp;
-  private int hpMax;
+  private final int hpMax;
   private String t1, t2;
-  private int level;
+  private final int level;
 
-  public Pokemon(String name, float height, float weight, int hp, String types) {
+  public Pokemon(String name, float height, float weight, String types) {
+    this(name, height, weight, types, 1);
+  }
+
+  public Pokemon(String name, String types, int level) {
+    this(name, 10f, 10f, types, level);
+  }
+
+  private Pokemon(String name, float height, float weight, String types, int level) {
     this.name = name;
     this.height = height;
     this.weight = weight;
-    setHp(hp);
-    this.level = 1;
+    this.level = level;
+    this.hpMax = calcularHpMax(level);
+    setHp(this.hpMax);
     String[] tipos = types.split("/");
     this.t1 = tipos[0];
     if(tipos.length > 1) {
@@ -24,9 +33,8 @@ public class Pokemon {
     }
   }
 
-  public Pokemon(String name, String types, int level) {
-    this(name, 10f, 10f, level*(25 + level), types );
-    this.level = level;
+  private static int calcularHpMax(int level) {
+    return level * (25 + level);
   }
 
   public int getHp() {
