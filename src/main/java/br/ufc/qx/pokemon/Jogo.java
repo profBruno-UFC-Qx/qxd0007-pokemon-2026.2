@@ -1,6 +1,7 @@
 package br.ufc.qx.pokemon;
 
 import br.ufc.qx.pokemon.mapa.Mapa;
+import br.ufc.qx.pokemon.mapa.Posicao;
 
 public class Jogo {
 
@@ -20,7 +21,7 @@ public class Jogo {
   }
 
   public String renderizarMapa() {
-    return mapa.renderizar(treinador.getX(), treinador.getY());
+    return mapa.renderizar(treinador.getPosicao());
   }
 
   public Direcao processarComando(String opcao) {
@@ -30,17 +31,16 @@ public class Jogo {
     } catch (IllegalArgumentException e) {
       return null;
     }
-    int novoX = treinador.getX();
-    int novoY = treinador.getY();
-    switch (direcao) {
-      case CIMA -> novoY = treinador.getY() - 1;
-      case BAIXO -> novoY = treinador.getY() + 1;
-      case DIR -> novoX = treinador.getX() + 1;
-      case ESQ -> novoX = treinador.getX() - 1;
-      case SAIR -> {}
-    }
-    if (mapa.ePosicaoValida(novoX, novoY)) {
-      treinador.moverPara(novoX, novoY);
+    Posicao atual = treinador.getPosicao();
+    Posicao destino = switch (direcao) {
+      case CIMA -> atual.deslocar(0, -1);
+      case BAIXO -> atual.deslocar(0, 1);
+      case DIR -> atual.deslocar(1, 0);
+      case ESQ -> atual.deslocar(-1, 0);
+      case SAIR -> atual;
+    };
+    if (mapa.ePosicaoValida(destino)) {
+      treinador.moverPara(destino);
     }
     return direcao;
   }

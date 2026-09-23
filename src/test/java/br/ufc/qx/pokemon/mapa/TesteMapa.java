@@ -13,13 +13,13 @@ public class TesteMapa {
   @Test
   public void moverParaPosicaoValida() {
     Mapa mapa = new Mapa(5, 5);
-    assertTrue(mapa.ePosicaoValida(2, 2), "A posição é válida");
+    assertTrue(mapa.ePosicaoValida(new Posicao(2, 2)), "A posição é válida");
   }
 
   @Test
   public void moverParaPosicaoInvalida() {
     Mapa mapa = new Mapa(5, 5);
-    assertFalse(mapa.ePosicaoValida(0, 5), "Essa posição é inválida");
+    assertFalse(mapa.ePosicaoValida(new Posicao(0, 5)), "Essa posição é inválida");
   }
 
   @Test
@@ -28,7 +28,7 @@ public class TesteMapa {
     // cenário que expunha o bug de índices trocados (mapa[x][y]).
     Mapa mapa = new Mapa(10, 5);
 
-    String[] linhas = mapa.renderizar(7, 1).split("\n");
+    String[] linhas = mapa.renderizar(new Posicao(7, 1)).split("\n");
 
     assertEquals(5, linhas.length);
   }
@@ -37,7 +37,7 @@ public class TesteMapa {
   public void renderizarMarcaTreinadorNaPosicaoInformada() {
     Mapa mapa = new Mapa(4, 3, new Random(1));
 
-    String[] linhas = mapa.renderizar(2, 1).split("\n");
+    String[] linhas = mapa.renderizar(new Posicao(2, 1)).split("\n");
 
     // Cada célula ocupa 2 caracteres ("c "), depois do '|' inicial.
     assertEquals('T', linhas[1].charAt(1 + 2 * 2));
@@ -49,8 +49,8 @@ public class TesteMapa {
   public void renderizarNaoAlteraOMapa() {
     Mapa mapa = new Mapa(3, 3, new Random(42));
 
-    mapa.renderizar(0, 0);
-    String[] linhas = mapa.renderizar(1, 1).split("\n");
+    mapa.renderizar(new Posicao(0, 0));
+    String[] linhas = mapa.renderizar(new Posicao(1, 1)).split("\n");
 
     assertFalse(linhas[0].contains("T"), "A posição anterior não deveria manter o treinador");
   }
@@ -60,6 +60,6 @@ public class TesteMapa {
     Mapa mapaA = new Mapa(4, 4, new Random(7));
     Mapa mapaB = new Mapa(4, 4, new Random(7));
 
-    assertEquals(mapaA.renderizar(0, 0), mapaB.renderizar(0, 0));
+    assertEquals(mapaA.renderizar(new Posicao(0, 0)), mapaB.renderizar(new Posicao(0, 0)));
   }
 }

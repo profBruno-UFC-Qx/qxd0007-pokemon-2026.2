@@ -36,19 +36,21 @@ public class Mapa {
     }
   }
 
-  public String renderizar(int x, int y) {
+  public String renderizar(Posicao posicaoTreinador) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < this.altura; i++) {
       sb.append('|');
       for (int j = 0; j < this.largura; j++) {
-        sb.append(i == y && j == x ? TREINADOR : this.mapa[i][j]).append(' ');
+        boolean treinadorAqui = i == posicaoTreinador.getY() && j == posicaoTreinador.getX();
+        sb.append(treinadorAqui ? TREINADOR : this.mapa[i][j]).append(' ');
       }
       sb.append("|\n");
     }
     return sb.toString();
   }
 
-  public boolean ePosicaoValida(int x, int y) {
-    return x >= 0 && x < largura && y >= 0 && y < altura;
+  public boolean ePosicaoValida(Posicao posicao) {
+    return posicao.getX() >= 0 && posicao.getX() < largura
+        && posicao.getY() >= 0 && posicao.getY() < altura;
   }
 }

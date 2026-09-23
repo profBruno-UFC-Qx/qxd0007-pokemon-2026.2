@@ -1,5 +1,6 @@
 import br.ufc.qx.pokemon.Pokemon;
 import br.ufc.qx.pokemon.Treinador;
+import br.ufc.qx.pokemon.mapa.Posicao;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -14,9 +15,14 @@ public class TesteTreinador {
   @Test
   public void moverParaBaixo() {
     Treinador treinador = new Treinador("Ash");
-    treinador.moverPara(0, 1);
-    assertEquals(treinador.getX(), 0);
-    assertEquals(treinador.getY(), 1);
+    treinador.moverPara(new Posicao(0, 1));
+    assertEquals(new Posicao(0, 1), treinador.getPosicao());
+  }
+
+  @Test
+  public void treinadorComecaNaOrigemDoMapa() {
+    Treinador treinador = new Treinador("Ash");
+    assertEquals(new Posicao(0, 0), treinador.getPosicao());
   }
 
   @Test

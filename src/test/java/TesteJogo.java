@@ -1,5 +1,6 @@
 import br.ufc.qx.pokemon.Direcao;
 import br.ufc.qx.pokemon.Jogo;
+import br.ufc.qx.pokemon.mapa.Posicao;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,15 +13,14 @@ public class TesteJogo {
     Jogo jogo = new Jogo("Ash");
     Direcao direcao = jogo.processarComando("dir");
     assertEquals(Direcao.DIR, direcao);
-    assertEquals(1, jogo.getTreinador().getX());
+    assertEquals(new Posicao(1, 0), jogo.getTreinador().getPosicao());
   }
 
   @Test
   public void processarComandoEsqNaoMoveTreinadorParaForaDoMapa() {
     Jogo jogo = new Jogo("Ash");
     jogo.processarComando("ESQ");
-    assertEquals(0, jogo.getTreinador().getX());
-    assertEquals(0, jogo.getTreinador().getY());
+    assertEquals(new Posicao(0, 0), jogo.getTreinador().getPosicao());
   }
 
   @Test
@@ -28,8 +28,7 @@ public class TesteJogo {
     Jogo jogo = new Jogo("Ash");
     Direcao direcao = jogo.processarComando("SAIR");
     assertEquals(Direcao.SAIR, direcao);
-    assertEquals(0, jogo.getTreinador().getX());
-    assertEquals(0, jogo.getTreinador().getY());
+    assertEquals(new Posicao(0, 0), jogo.getTreinador().getPosicao());
   }
 
   @Test
@@ -39,8 +38,7 @@ public class TesteJogo {
     Direcao direcao = jogo.processarComando("VOAR");
 
     assertNull(direcao);
-    assertEquals(0, jogo.getTreinador().getX());
-    assertEquals(0, jogo.getTreinador().getY());
+    assertEquals(new Posicao(0, 0), jogo.getTreinador().getPosicao());
   }
 
   @Test
@@ -49,8 +47,7 @@ public class TesteJogo {
     jogo.processarComando("DIR");
     jogo.processarComando("BAIXO");
     jogo.processarComando("CIMA");
-    assertEquals(1, jogo.getTreinador().getX());
-    assertEquals(0, jogo.getTreinador().getY());
+    assertEquals(new Posicao(1, 0), jogo.getTreinador().getPosicao());
   }
 
   @Test
