@@ -1,52 +1,43 @@
 package br.ufc.qx.pokemon;
 
+import br.ufc.qx.pokemon.mapa.Posicao;
+
+import java.util.Arrays;
+import java.util.List;
+
 public class Treinador {
 
+  private static final int MAX_POKEMONS = 6;
+
   private String nome;
-  private int x,y;
+  private Posicao posicao;
   private Pokemon[] pokemons;
   private int qtdPokemons;
 
   public Treinador(String nome) {
     this.nome = nome;
-    this.x = 0;
-    this.y = 0;
-    this.pokemons = new Pokemon[6];
+    this.posicao = new Posicao(0, 0);
+    this.pokemons = new Pokemon[MAX_POKEMONS];
   }
 
   public String getNome() {
     return nome;
   }
 
-  public int getX() {
-    return x;
+  public Posicao getPosicao() {
+    return posicao;
   }
 
-  public int getY() {
-    return y;
+  public void moverPara(Posicao destino) {
+    this.posicao = destino;
   }
 
-  public void setX(int x) {
-    this.x = x;
-  }
-
-  public void setY(int y) {
-    this.y = y;
-  }
-
-  public void moverPara(int x, int y) {
-    setX(x);
-    setY(y);
-  }
-
-  public void listar() {
-    for(Pokemon pokemon : pokemons) {
-      System.out.println(pokemon);
-    }
+  public List<Pokemon> getPokemons() {
+    return List.copyOf(Arrays.asList(pokemons).subList(0, qtdPokemons));
   }
 
   public boolean capturar(Pokemon pokemon) {
-    if(pokemons[pokemons.length - 1] == null) {
+    if (qtdPokemons < pokemons.length) {
       pokemons[qtdPokemons++] = pokemon;
       return true;
     }

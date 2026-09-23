@@ -1,50 +1,33 @@
 package br.ufc.qx.pokemon;
 
-import java.util.Scanner;
+import br.ufc.qx.pokemon.mapa.Mapa;
+import br.ufc.qx.pokemon.mapa.Posicao;
 
 public class Jogo {
+
+  private static final int LARGURA_MAPA = 10;
+  private static final int ALTURA_MAPA = 5;
 
   private Treinador treinador;
   private Mapa mapa;
 
   public Jogo(String nome) {
     treinador = new Treinador(nome);
-    mapa = new Mapa(10, 5);
+    mapa = new Mapa(LARGURA_MAPA, ALTURA_MAPA);
   }
 
-  public void iniciar() {
-    Scanner scanner = new Scanner(System.in);
-    String opcao;
-    int novoX = treinador.getX();
-    int novoY = treinador.getY();
-    do {
-      mapa.exibirMapa(treinador.getX(), treinador.getY());
-      System.out.println("Informe a direção para onde queres ir");
-      opcao = scanner.nextLine();
-      if (opcao.equalsIgnoreCase("CIMA")) {
-        novoY = treinador.getY() - 1;
-      } else if (opcao.equalsIgnoreCase("BAIXO")) {
-        novoY = treinador.getY() + 1;
-      } else if (opcao.equalsIgnoreCase("DIR")) {
-        novoX = treinador.getX() + 1;
-      } else if (opcao.equalsIgnoreCase("ESQ")) {
-        novoX = treinador.getX() - 1;
-      } else if (!opcao.equalsIgnoreCase("SAIR")) {
-        System.out.println("Valor invalido");
-      }
-      if(mapa.ePosicaoValida(novoX, novoY)) {
-        treinador.moverPara(novoX, novoY);
-      }
+  public Treinador getTreinador() {
+    return treinador;
+  }
 
-    } while("sair".equals(opcao) == false);
+  public String renderizarMapa() {
+    return mapa.renderizar(treinador.getPosicao());
+  }
 
+  public void mover(Direcao direcao) {
+    Posicao destino = direcao.aplicarEm(treinador.getPosicao());
+    if (mapa.ePosicaoValida(destino)) {
+      treinador.moverPara(destino);
+    }
   }
 }
-
-
-
-
-
-
-
-

@@ -3,30 +3,27 @@ package br.ufc.qx.pokemon;
 import java.util.Objects;
 
 public class Pokemon {
-  private final String name;
-  private float height;
-  private float weight;
-  private int hp;
-  private int hpMax;
-  private String t1, t2;
-  private int level;
 
-  public Pokemon(String name, float height, float weight, int hp, String types) {
-    this.name = name;
-    this.height = height;
-    this.weight = weight;
-    setHp(hp);
-    this.level = 1;
-    String[] tipos = types.split("/");
-    this.t1 = tipos[0];
-    if(tipos.length > 1) {
-      this.t2 = tipos[1];
-    }
+  private static final int NIVEL_INICIAL = 1;
+
+  private final String nome;
+  private final int nivel;
+  private final int hpMax;
+  private int hp;
+
+  public Pokemon(String nome) {
+    this(nome, NIVEL_INICIAL);
   }
 
-  public Pokemon(String name, String types, int level) {
-    this(name, 10f, 10f, level*(25 + level), types );
-    this.level = level;
+  public Pokemon(String nome, int nivel) {
+    this.nome = nome;
+    this.nivel = nivel;
+    this.hpMax = calcularHpMax(nivel);
+    setHp(this.hpMax);
+  }
+
+  private static int calcularHpMax(int nivel) {
+    return nivel * (25 + nivel);
   }
 
   public int getHp() {
@@ -43,20 +40,20 @@ public class Pokemon {
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     Pokemon pokemon = (Pokemon) o;
-    return level == pokemon.level && Objects.equals(name, pokemon.name);
+    return nivel == pokemon.nivel && Objects.equals(nome, pokemon.nome);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, level);
+    return Objects.hash(nome, nivel);
   }
 
   @Override
   public String toString() {
     return "Pokemon{" +
-            "name='" + name + '\'' +
+            "nome='" + nome + '\'' +
             ", hp=" + hp +
-            ", level=" + level +
+            ", nivel=" + nivel +
             ", hpMax=" + hpMax +
             '}';
   }
