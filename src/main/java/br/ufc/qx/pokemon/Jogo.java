@@ -2,8 +2,6 @@ package br.ufc.qx.pokemon;
 
 import br.ufc.qx.pokemon.mapa.Mapa;
 
-import java.util.Scanner;
-
 public class Jogo {
 
   private Treinador treinador;
@@ -18,16 +16,8 @@ public class Jogo {
     return treinador;
   }
 
-  public void iniciar() {
-    Scanner scanner = new Scanner(System.in);
-    Direcao direcao;
-    do {
-      mapa.exibirMapa(treinador.getX(), treinador.getY());
-      System.out.println("Informe a direção para onde queres ir");
-      String opcao = scanner.nextLine();
-      direcao = processarComando(opcao);
-    } while (direcao != Direcao.SAIR);
-
+  public String renderizarMapa() {
+    return mapa.renderizar(treinador.getX(), treinador.getY());
   }
 
   public Direcao processarComando(String opcao) {
@@ -35,7 +25,6 @@ public class Jogo {
     try {
       direcao = Direcao.valueOf(opcao.toUpperCase());
     } catch (IllegalArgumentException e) {
-      System.out.println("Valor invalido");
       return null;
     }
     int novoX = treinador.getX();
@@ -53,11 +42,3 @@ public class Jogo {
     return direcao;
   }
 }
-
-
-
-
-
-
-
-

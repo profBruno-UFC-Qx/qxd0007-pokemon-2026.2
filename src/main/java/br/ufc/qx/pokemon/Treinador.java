@@ -1,5 +1,8 @@
 package br.ufc.qx.pokemon;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Treinador {
 
   private String nome;
@@ -39,10 +42,8 @@ public class Treinador {
     setY(y);
   }
 
-  public void listar() {
-    for (int i = 0; i < qtdPokemons; i++) {
-      System.out.println(pokemons[i]);
-    }
+  public List<Pokemon> getPokemons() {
+    return List.copyOf(Arrays.asList(pokemons).subList(0, qtdPokemons));
   }
 
   public boolean capturar(Pokemon pokemon) {

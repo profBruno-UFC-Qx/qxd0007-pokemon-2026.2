@@ -2,12 +2,8 @@ import br.ufc.qx.pokemon.Direcao;
 import br.ufc.qx.pokemon.Jogo;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TesteJogo {
 
@@ -40,20 +36,11 @@ public class TesteJogo {
   public void processarComandoInvalidoNaoMoveERetornaNulo() {
     Jogo jogo = new Jogo("Ash");
 
-    ByteArrayOutputStream saida = new ByteArrayOutputStream();
-    PrintStream original = System.out;
-    System.setOut(new PrintStream(saida));
-    Direcao direcao;
-    try {
-      direcao = jogo.processarComando("VOAR");
-    } finally {
-      System.setOut(original);
-    }
+    Direcao direcao = jogo.processarComando("VOAR");
 
     assertNull(direcao);
     assertEquals(0, jogo.getTreinador().getX());
     assertEquals(0, jogo.getTreinador().getY());
-    assertTrue(saida.toString().contains("Valor invalido"));
   }
 
   @Test
@@ -64,5 +51,16 @@ public class TesteJogo {
     jogo.processarComando("CIMA");
     assertEquals(1, jogo.getTreinador().getX());
     assertEquals(0, jogo.getTreinador().getY());
+  }
+
+  @Test
+  public void renderizarMapaMostraTreinadorNaPosicaoAtual() {
+    Jogo jogo = new Jogo("Ash");
+    jogo.processarComando("DIR");
+
+    String[] linhas = jogo.renderizarMapa().split("\n");
+
+    // Treinador em x=1, y=0: cada célula ocupa 2 caracteres, depois do '|' inicial.
+    assertEquals('T', linhas[0].charAt(1 + 2 * 1));
   }
 }

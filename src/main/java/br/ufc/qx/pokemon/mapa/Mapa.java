@@ -31,9 +31,7 @@ public class Mapa {
     }
   }
 
-  // Sem modificador de acesso: visível apenas para o pacote mapa (e seus testes),
-  // não para o Jogo.
-  String renderizar(int x, int y) {
+  public String renderizar(int x, int y) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < this.altura; i++) {
       sb.append('|');
@@ -43,10 +41,6 @@ public class Mapa {
       sb.append("|\n");
     }
     return sb.toString();
-  }
-
-  public void exibirMapa(int x, int y) {
-    System.out.print(renderizar(x, y));
   }
 
   public boolean ePosicaoValida(int x, int y) {

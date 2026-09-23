@@ -2,11 +2,11 @@ import br.ufc.qx.pokemon.Pokemon;
 import br.ufc.qx.pokemon.Treinador;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TesteTreinador {
@@ -43,21 +43,28 @@ public class TesteTreinador {
   }
 
   @Test
-  public void listarNaoImprimeSlotsVaziosDaEquipe() {
+  public void getPokemonsDevolveApenasOsPokemonsCapturados() {
     Treinador treinador = new Treinador("Ash");
-    treinador.capturar(new Pokemon("Pikachu", "electric", 5));
+    Pokemon pikachu = new Pokemon("Pikachu", "electric", 5);
+    treinador.capturar(pikachu);
 
-    ByteArrayOutputStream saida = new ByteArrayOutputStream();
-    PrintStream original = System.out;
-    System.setOut(new PrintStream(saida));
-    try {
-      treinador.listar();
-    } finally {
-      System.setOut(original);
-    }
+    List<Pokemon> pokemons = treinador.getPokemons();
 
-    String[] linhas = saida.toString().trim().split(System.lineSeparator());
-    assertEquals(1, linhas.length);
-    assertFalse(saida.toString().contains("null"));
+    assertEquals(List.of(pikachu), pokemons);
+  }
+
+  @Test
+  public void getPokemonsDevolveListaVaziaQuandoNadaFoiCapturado() {
+    Treinador treinador = new Treinador("Ash");
+
+    assertTrue(treinador.getPokemons().isEmpty());
+  }
+
+  @Test
+  public void getPokemonsNaoPermiteAlterarAEquipeDoTreinador() {
+    Treinador treinador = new Treinador("Ash");
+
+    assertThrows(UnsupportedOperationException.class,
+        () -> treinador.getPokemons().add(new Pokemon("Intruso", "normal", 1)));
   }
 }
