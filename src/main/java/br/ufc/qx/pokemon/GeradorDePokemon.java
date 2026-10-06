@@ -5,7 +5,7 @@ import java.util.Random;
 public class GeradorDePokemon {
 
   private static final String[] NOMES = {
-      "Pidgey", "Rattata", "Caterpie", "Weedle", "Oddish", "Bellsprout", "Pikachu", "Eevee"
+      "Mewto", "Mew", "Zapdos", "Articuno", "Moltres", "Bellsprout", "Pikachu", "Eevee"
   };
   private static final int NIVEL_MIN_SELVAGEM = 1;
   private static final int NIVEL_MAX_SELVAGEM = 30;

@@ -2,6 +2,12 @@ package br.ufc.qx.pokemon;
 
 import br.ufc.qx.pokemon.mapa.Mapa;
 import br.ufc.qx.pokemon.mapa.Posicao;
+import br.ufc.qx.pokemon.pokebola.GreatBall;
+import br.ufc.qx.pokemon.pokebola.MasterBall;
+import br.ufc.qx.pokemon.pokebola.Pokebola;
+import br.ufc.qx.pokemon.pokebola.UltraBall;
+
+import java.util.Random;
 
 public class Jogo {
 
@@ -10,10 +16,21 @@ public class Jogo {
 
   private Treinador treinador;
   private Mapa mapa;
+  private GeradorDePokemon geradorDePokemon;
 
   public Jogo(String nome) {
+    this(nome, new Random());
+  }
+
+  public Jogo(String nome, Random random) {
     treinador = new Treinador(nome);
-    mapa = new Mapa(LARGURA_MAPA, ALTURA_MAPA);
+    treinador.adicionarPokebola(new Pokebola());
+    treinador.adicionarPokebola(new GreatBall());
+    treinador.adicionarPokebola(new UltraBall());
+    treinador.adicionarPokebola(new MasterBall());
+
+    mapa = new Mapa(LARGURA_MAPA, ALTURA_MAPA, random);
+    geradorDePokemon = new GeradorDePokemon(random);
   }
 
   public Treinador getTreinador() {
@@ -24,10 +41,15 @@ public class Jogo {
     return mapa.renderizar(treinador.getPosicao());
   }
 
-  public void mover(Direcao direcao) {
+  public Batalha mover(Direcao direcao) {
     Posicao destino = direcao.aplicarEm(treinador.getPosicao());
-    if (mapa.ePosicaoValida(destino)) {
-      treinador.moverPara(destino);
+    if (!mapa.ePosicaoValida(destino)) {
+      return null;
     }
+    treinador.moverPara(destino);
+    if (mapa.sortearEncontro(destino)) {
+      return new Batalha(treinador, geradorDePokemon.gerar());
+    }
+    return null;
   }
 }
