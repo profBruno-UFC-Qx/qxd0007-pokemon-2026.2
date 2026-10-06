@@ -7,6 +7,8 @@ import br.ufc.qx.pokemon.pokebola.MasterBall;
 import br.ufc.qx.pokemon.pokebola.Pokebola;
 import br.ufc.qx.pokemon.pokebola.UltraBall;
 
+import java.util.Random;
+
 public class Jogo {
 
   private static final int LARGURA_MAPA = 10;
@@ -17,14 +19,18 @@ public class Jogo {
   private GeradorDePokemon geradorDePokemon;
 
   public Jogo(String nome) {
+    this(nome, new Random());
+  }
+
+  public Jogo(String nome, Random random) {
     treinador = new Treinador(nome);
     treinador.adicionarPokebola(new Pokebola());
     treinador.adicionarPokebola(new GreatBall());
     treinador.adicionarPokebola(new UltraBall());
     treinador.adicionarPokebola(new MasterBall());
 
-    mapa = new Mapa(LARGURA_MAPA, ALTURA_MAPA);
-    geradorDePokemon = new GeradorDePokemon();
+    mapa = new Mapa(LARGURA_MAPA, ALTURA_MAPA, random);
+    geradorDePokemon = new GeradorDePokemon(random);
   }
 
   public Treinador getTreinador() {

@@ -3,6 +3,8 @@ package br.ufc.qx.pokemon;
 import br.ufc.qx.pokemon.mapa.Posicao;
 import org.junit.jupiter.api.Test;
 
+import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TesteJogo {
@@ -46,5 +48,23 @@ public class TesteJogo {
 
     // Treinador em x=1, y=0: cada célula ocupa 2 caracteres, depois do '|' inicial.
     assertEquals('T', linhas[0].charAt(1 + 2 * 1));
+  }
+
+  @Test
+  public void jogosComMesmaSementeGeramOMesmoMapa() {
+    Jogo jogoA = new Jogo("Ash", new Random(42));
+    Jogo jogoB = new Jogo("Ash", new Random(42));
+
+    assertEquals(jogoA.renderizarMapa(), jogoB.renderizarMapa());
+  }
+
+  @Test
+  public void jogosComMesmaSementeEncontramOsMesmosPokemons() {
+    Jogo jogoA = new Jogo("Ash", new Random(42));
+    Jogo jogoB = new Jogo("Ash", new Random(42));
+
+    for (int i = 0; i < 10; i++) {
+      assertEquals(jogoA.iniciarBatalha().getPokemon(), jogoB.iniciarBatalha().getPokemon());
+    }
   }
 }

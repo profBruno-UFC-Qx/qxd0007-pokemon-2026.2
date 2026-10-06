@@ -9,14 +9,20 @@ public class Pokebola {
   private static final double CHANCE_MINIMA = 0.05;
   private String nome;
   private double taxa;
+  private final Random random;
 
   public Pokebola() {
-    this("Pokebola", 0.4);
+    this(new Random());
   }
 
-  protected Pokebola(String nome, double taxa) {
+  Pokebola(Random random) {
+    this("Pokebola", 0.4, random);
+  }
+
+  protected Pokebola(String nome, double taxa, Random random) {
     this.nome = nome;
     this.taxa = taxa;
+    this.random = random;
   }
 
   public String getNome() {
@@ -28,8 +34,7 @@ public class Pokebola {
   }
 
   public final boolean capturar(Pokemon p) {
-    Random r = new Random();
-    return r.nextDouble() < getTaxaDeCaptura(p);
+    return random.nextDouble() < getTaxaDeCaptura(p);
   }
 
 

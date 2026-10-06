@@ -5,6 +5,7 @@ import br.ufc.qx.pokemon.pokebola.Pokebola;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,7 +19,7 @@ public class TesteBatalha {
   private static class PokebolaQueSempreFalha extends Pokebola {
 
     PokebolaQueSempreFalha() {
-      super("PokebolaQueSempreFalha", 0);
+      super("PokebolaQueSempreFalha", 0, new Random());
     }
 
     @Override
