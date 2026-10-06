@@ -27,7 +27,7 @@ public class Mapa {
     inicializarMapa();
   }
 
-  public boolean encontrouPokemon(Posicao posicao) {
+  public boolean sortearEncontro(Posicao posicao) {
     return mapa[posicao.getY()][posicao.getX()] == GRAMA && random.nextFloat() < PROBABILIDADE_ENCONTRO;
   }
 

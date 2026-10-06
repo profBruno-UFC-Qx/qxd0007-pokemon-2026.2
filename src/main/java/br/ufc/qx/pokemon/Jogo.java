@@ -41,19 +41,15 @@ public class Jogo {
     return mapa.renderizar(treinador.getPosicao());
   }
 
-  public void mover(Direcao direcao) {
+  public Batalha mover(Direcao direcao) {
     Posicao destino = direcao.aplicarEm(treinador.getPosicao());
-    if (mapa.ePosicaoValida(destino)) {
-      treinador.moverPara(destino);
+    if (!mapa.ePosicaoValida(destino)) {
+      return null;
     }
-  }
-
-  public Batalha iniciarBatalha() {
-    Pokemon encontrado = geradorDePokemon.gerar();
-    return new Batalha(treinador, encontrado);
-  }
-
-  public boolean encontrouPokemon() {
-    return mapa.encontrouPokemon(treinador.getPosicao());
+    treinador.moverPara(destino);
+    if (mapa.sortearEncontro(destino)) {
+      return new Batalha(treinador, geradorDePokemon.gerar());
+    }
+    return null;
   }
 }

@@ -3,7 +3,7 @@ package br.ufc.qx.pokemon;
 import br.ufc.qx.pokemon.mapa.Posicao;
 import br.ufc.qx.pokemon.pokebola.Pokebola;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Treinador {
@@ -15,7 +15,6 @@ public class Treinador {
   private Posicao posicao;
   private Pokemon[] pokemons;
   private Pokebola[] pokebolas;
-  private int qtdPokemons;
 
   public Treinador(String nome) {
     this.nome = nome;
@@ -37,19 +36,33 @@ public class Treinador {
   }
 
   public List<Pokemon> getPokemons() {
-    return List.copyOf(Arrays.asList(pokemons).subList(0, qtdPokemons));
+    List<Pokemon> capturados = new ArrayList<>();
+    for(Pokemon p: pokemons) {
+      if (p != null) {
+        capturados.add(p);
+      }
+    }
+    return List.copyOf(capturados);
   }
 
-  public boolean capturar(Pokemon pokemon) {
-    if (qtdPokemons < pokemons.length) {
-      pokemons[qtdPokemons++] = pokemon;
-      return true;
+  public boolean adicionarPokemon(Pokemon pokemon) {
+    if(pokemon == null) return false;
+    for(int i = 0; i < MAX_POKEMONS; i++) {
+      if (pokemons[i] == null) {
+        pokemons[i] = pokemon;
+        return true;
+      }
     }
     return false;
   }
 
   public boolean equipeCheia() {
-    return qtdPokemons == pokemons.length;
+    for(Pokemon p: pokemons) {
+      if (p == null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public boolean adicionarPokebola(Pokebola pokebola) {

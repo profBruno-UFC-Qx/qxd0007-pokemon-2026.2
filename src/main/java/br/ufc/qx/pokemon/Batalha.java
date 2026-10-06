@@ -3,8 +3,8 @@ package br.ufc.qx.pokemon;
 import br.ufc.qx.pokemon.pokebola.Pokebola;
 
 public class Batalha {
-  private Treinador treinador;
-  private Pokemon pokemon;
+  private final Treinador treinador;
+  private final Pokemon pokemon;
   private boolean encerrada;
   private Pokebola ultimaPokebola;
 
@@ -32,7 +32,7 @@ public class Batalha {
       return ResultadoCaptura.SEM_POKEBOLA;
     }
     if (ultimaPokebola.capturar(pokemon)) {
-      treinador.capturar(pokemon);
+      treinador.adicionarPokemon(pokemon);
       encerrada = true;
       return ResultadoCaptura.CAPTURADO;
     }

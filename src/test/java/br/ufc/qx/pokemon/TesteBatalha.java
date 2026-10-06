@@ -103,7 +103,7 @@ public class TesteBatalha {
   public void equipeCheiaNaoGastaPokebolaNemEncerraABatalha() {
     Treinador treinador = new Treinador("Ash");
     for (int i = 0; i < MAX_POKEMONS; i++) {
-      treinador.capturar(new Pokemon("Pokemon" + i, 1));
+      treinador.adicionarPokemon(new Pokemon("Pokemon" + i, 1));
     }
     treinador.adicionarPokebola(new MasterBall());
     Batalha batalha = new Batalha(treinador, pikachu);

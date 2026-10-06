@@ -1,6 +1,5 @@
 package br.ufc.qx.pokemon;
 
-import javax.sound.midi.SysexMessage;
 import java.util.Scanner;
 
 public class JogoConsole {
@@ -24,9 +23,9 @@ public class JogoConsole {
         sair = true;
       } else {
         if (Direcao.eDirecaoValida(opcao)) {
-          jogo.mover(Direcao.get(opcao));
-          if(jogo.encontrouPokemon()) {
-            gerenciarBatalha(scanner);
+          Batalha batalha = jogo.mover(Direcao.get(opcao));
+          if(batalha != null) {
+            gerenciarBatalha(batalha, scanner);
           }
         } else {
           System.out.println("Valor invalido");
@@ -35,14 +34,13 @@ public class JogoConsole {
     }
   }
 
-  private void gerenciarBatalha(Scanner scanner) {
+  private void gerenciarBatalha(Batalha batalha, Scanner scanner) {
     String opcao;
-    Batalha batalha = jogo.iniciarBatalha();
-    System.out.println("Voce encontrou um " + batalha.getPokemon());
+    System.out.println("Voce encontrou um " + descrever(batalha.getPokemon()));
     while(!batalha.terminou()) {
       System.out.println("O que deseja fazer ?");
       System.out.println("  - [F]ugir");
-      System.out.println("  - Arremesar [P]okebola");
+      System.out.println("  - Arremessar [P]okebola");
       opcao = scanner.nextLine();
       if("F".equalsIgnoreCase(opcao)) {
         batalha.fugir();
@@ -51,7 +49,7 @@ public class JogoConsole {
           case EQUIPE_CHEIA -> System.out.println("Sua equipe está cheia");
           case SEM_POKEBOLA -> System.out.println("Você não tem mais pokebolas");
           case CAPTURADO -> System.out.println("Uma " + batalha.getUltimaPokebola().getNome()
-              + " foi arremessada. Parabens vc capturou um " + batalha.getPokemon());
+              + " foi arremessada. Parabens vc capturou um " + descrever(batalha.getPokemon()));
           case ESCAPOU -> {
             System.out.println("Uma " + batalha.getUltimaPokebola().getNome()
                 + " foi arremessada, mas o pokemon quebrou a pokebola");
@@ -64,5 +62,9 @@ public class JogoConsole {
           System.out.println("Opção inválida");
       }
     }
+  }
+
+  private String descrever(Pokemon pokemon) {
+    return pokemon.getNome() + " (nível " + pokemon.getNivel() + ")";
   }
 }
