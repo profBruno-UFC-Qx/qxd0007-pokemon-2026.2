@@ -1,5 +1,6 @@
 package br.ufc.qx.pokemon;
 
+import javax.sound.midi.SysexMessage;
 import java.util.Scanner;
 
 public class JogoConsole {
@@ -24,9 +25,35 @@ public class JogoConsole {
       } else {
         if (Direcao.eDirecaoValida(opcao)) {
           jogo.mover(Direcao.get(opcao));
+          if(jogo.encontrouPokemon()) {
+            gerenciarBatalha(scanner);
+          }
         } else {
           System.out.println("Valor invalido");
         }
+      }
+    }
+  }
+
+  private void gerenciarBatalha(Scanner scanner) {
+    String opcao;
+    Batalha batalha = jogo.iniciarBatalha();
+    System.out.println("Voce encontrou um " + batalha.getPokemon());
+    while(!batalha.terminou()) {
+      System.out.println("O que deseja fazer ?");
+      System.out.println("  - [F]ugir");
+      System.out.println("  - Arremesar [P]okebola");
+      opcao = scanner.nextLine();
+      if("F".equalsIgnoreCase(opcao)) {
+        batalha.fugir();
+      } else if("P".equalsIgnoreCase(opcao)) {
+        if (batalha.tentarCaptura()) {
+          System.out.println("Parabens vc capturou um " +  batalha.getPokemon());
+        } else {
+          System.out.println("O pokemon quebrou a pokebola");
+        }
+      } else {
+          System.out.println("Opção inválida");
       }
     }
   }

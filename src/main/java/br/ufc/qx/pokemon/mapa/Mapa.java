@@ -4,14 +4,16 @@ import java.util.Random;
 
 public class Mapa {
 
-  private static final double PROBABILIDADE_LIVRE = 0.8;
+  private static final double PROBABILIDADE_LIVRE = 0.2;
   private static final char LIVRE = ' ';
   private static final char GRAMA = 'w';
   private static final char TREINADOR = 'T';
+  private static final double PROBABILIDADE_ENCONTRO = 0.5;
 
   private final char[][] mapa;
   private final int largura;
   private final int altura;
+  private final Random random;
 
   public Mapa(int largura, int altura) {
     this(largura, altura, new Random());
@@ -21,13 +23,18 @@ public class Mapa {
     this.largura = largura;
     this.altura = altura;
     this.mapa = new char[this.altura][this.largura];
-    inicializarMapa(random);
+    this.random = random;
+    inicializarMapa();
   }
 
-  private void inicializarMapa(Random r) {
+  public boolean encontrouPokemon(Posicao posicao) {
+    return mapa[posicao.getY()][posicao.getX()] == GRAMA && random.nextFloat() < PROBABILIDADE_ENCONTRO;
+  }
+
+  private void inicializarMapa() {
     for (int i = 0; i < this.altura; i++) {
       for (int j = 0; j < this.largura; j++) {
-        if(r.nextFloat() < PROBABILIDADE_LIVRE) {
+        if(random.nextFloat() < PROBABILIDADE_LIVRE) {
           this.mapa[i][j] = LIVRE;
         } else {
           this.mapa[i][j] = GRAMA;
