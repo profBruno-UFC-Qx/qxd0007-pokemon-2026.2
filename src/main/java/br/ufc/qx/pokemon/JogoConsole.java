@@ -47,10 +47,18 @@ public class JogoConsole {
       if("F".equalsIgnoreCase(opcao)) {
         batalha.fugir();
       } else if("P".equalsIgnoreCase(opcao)) {
-        if (batalha.tentarCaptura()) {
-          System.out.println("Parabens vc capturou um " +  batalha.getPokemon());
-        } else {
-          System.out.println("O pokemon quebrou a pokebola");
+        switch (batalha.tentarCaptura()) {
+          case EQUIPE_CHEIA -> System.out.println("Sua equipe está cheia");
+          case SEM_POKEBOLA -> System.out.println("Você não tem mais pokebolas");
+          case CAPTURADO -> System.out.println("Uma " + batalha.getUltimaPokebola().getNome()
+              + " foi arremessada. Parabens vc capturou um " + batalha.getPokemon());
+          case ESCAPOU -> {
+            System.out.println("Uma " + batalha.getUltimaPokebola().getNome()
+                + " foi arremessada, mas o pokemon quebrou a pokebola");
+            if (batalha.terminou()) {
+              System.out.println("Suas pokebolas acabaram e o pokemon fugiu");
+            }
+          }
         }
       } else {
           System.out.println("Opção inválida");

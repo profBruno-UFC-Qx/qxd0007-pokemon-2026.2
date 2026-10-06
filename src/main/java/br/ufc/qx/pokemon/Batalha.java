@@ -6,6 +6,7 @@ public class Batalha {
   private Treinador treinador;
   private Pokemon pokemon;
   private boolean encerrada;
+  private Pokebola ultimaPokebola;
 
   public Batalha(Treinador treinador, Pokemon pokemon) {
     this.treinador = treinador;
@@ -17,19 +18,28 @@ public class Batalha {
     return pokemon;
   }
 
-  public boolean tentarCaptura() {
-    Pokebola pokebola = treinador.arremessarPokebola();
-    if(pokebola != null && pokebola.capturar(pokemon)) {
-      System.out.println("Uma " + pokebola.getNome() + " foi arremesada");
-      if (treinador.capturar(pokemon)) {
-        encerrada = true;
-        return true;
-      }
+  public Pokebola getUltimaPokebola() {
+    return ultimaPokebola;
+  }
+
+  public ResultadoCaptura tentarCaptura() {
+    if (treinador.equipeCheia()) {
+      return ResultadoCaptura.EQUIPE_CHEIA;
     }
-    if(!treinador.temPokebola()) {
+    ultimaPokebola = treinador.arremessarPokebola();
+    if (ultimaPokebola == null) {
+      encerrada = true;
+      return ResultadoCaptura.SEM_POKEBOLA;
+    }
+    if (ultimaPokebola.capturar(pokemon)) {
+      treinador.capturar(pokemon);
+      encerrada = true;
+      return ResultadoCaptura.CAPTURADO;
+    }
+    if (!treinador.temPokebola()) {
       encerrada = true;
     }
-    return false;
+    return ResultadoCaptura.ESCAPOU;
   }
 
   public void fugir() {

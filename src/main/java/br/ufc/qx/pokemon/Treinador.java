@@ -48,6 +48,10 @@ public class Treinador {
     return false;
   }
 
+  public boolean equipeCheia() {
+    return qtdPokemons == pokemons.length;
+  }
+
   public boolean adicionarPokebola(Pokebola pokebola) {
     if(pokebola == null) return false;
     for(int i = 0; i < MAX_POKEBOLAS; i++) {
