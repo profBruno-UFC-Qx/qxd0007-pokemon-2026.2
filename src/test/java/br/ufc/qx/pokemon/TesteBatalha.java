@@ -22,8 +22,8 @@ public class TesteBatalha {
     }
 
     @Override
-    public boolean capturar(Pokemon p) {
-      return false;
+    protected double getTaxaDeCaptura(Pokemon p) {
+      return 0;
     }
   }
 

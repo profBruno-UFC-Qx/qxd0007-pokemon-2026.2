@@ -9,7 +9,7 @@ public class MasterBall extends Pokebola {
   }
 
   @Override
-  public boolean capturar(Pokemon p) {
-    return true;
+  protected double getTaxaDeCaptura(Pokemon p) {
+    return 1.0;
   }
 }

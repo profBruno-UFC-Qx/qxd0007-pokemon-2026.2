@@ -6,6 +6,7 @@ import java.util.Random;
 
 public class Pokebola {
 
+  private static final double CHANCE_MINIMA = 0.05;
   private String nome;
   private double taxa;
 
@@ -23,10 +24,10 @@ public class Pokebola {
   }
 
   protected double getTaxaDeCaptura(Pokemon p) {
-    return taxa - taxa * (p.getNivel()* 1.0/ Pokemon.NIVEL_MAXIMO) + 0.05;
+    return taxa - taxa * (p.getNivel()* 1.0/ Pokemon.NIVEL_MAXIMO) + CHANCE_MINIMA;
   }
 
-  public boolean capturar(Pokemon p) {
+  public final boolean capturar(Pokemon p) {
     Random r = new Random();
     return r.nextDouble() < getTaxaDeCaptura(p);
   }
