@@ -1,6 +1,6 @@
 # Pokemon — do código tudo-em-um à separação de responsabilidades em Java
 
-Um treinador anda por um mapa desenhado no terminal. O jogo é pequeno de propósito: este repositório existe para ser **lido**, não jogado. Ele é dirigido a quem já escreveu classes com atributos, construtores e métodos em Java e agora precisa decidir *onde cada responsabilidade mora*. Ao acompanhar a evolução do código, você vê como o encapsulamento, a testabilidade, o objeto de valor e a separação entre regras do jogo e entrada/saída surgem de problemas concretos, e não de regras decoradas.
+Um treinador anda por um mapa desenhado no terminal e tenta capturar os Pokémon que encontra na grama. O jogo é pequeno de propósito: este repositório existe para ser **lido**, não jogado. Ele é dirigido a quem já escreveu classes com atributos, construtores e métodos em Java e agora precisa decidir *onde cada responsabilidade mora*. Ao acompanhar a evolução do código, você vê como o encapsulamento, a testabilidade, o objeto de valor, a herança e a separação entre regras do jogo e entrada/saída surgem de problemas concretos, e não de regras decoradas.
 
 Os trechos abaixo vêm dos commits indicados (`git show <commit>:<arquivo>`), na versão de cada estágio, e podem diferir do código atual.
 
@@ -504,9 +504,348 @@ A próxima etapa do jogo é encontrar Pokémon selvagens na grama e tentar captu
 * **`NIVEL_MAXIMO` é `public`; `NIVEL_INICIAL` continua `private`.** As outras constantes do projeto são privadas porque só a própria classe as usa. O nível máximo é uma regra do domínio que a fórmula de captura, fora de `Pokemon`, vai consultar. Expor só o que alguém de fora precisa mantém a interface pequena.
 * **`getNome` e `getNivel` chegam junto com quem os lê.** O estágio 8 removeu campos que ninguém consultava; aqui o movimento é o inverso: os getters entram porque agora há leitores previstos (a mensagem "um Pidgey selvagem apareceu" e o cálculo da chance de captura). Um getter sem leitor seria só interface pública a mais para manter.
 
-### 10. Enum com dados: `Especie` e as 151 espécies
+### 10. Herança: `Pokebola`, `super(...)` e o construtor `protected`
 
-Entre o estágio 9 e este, a atividade 03 acrescentou a captura com pokébolas (`Pokebola` e `Batalha`), que ainda não tem estágios neste roteiro. A atividade 04 troca a fórmula de captura por uma que depende da espécie: taxa de captura, velocidade e peso. Até aqui, um `Pokemon` só sabia o próprio nome, e o gerador sorteava esse nome de uma lista de oito textos. O commit `4b6033d` (ponto de partida da atividade 04) dá um tipo à espécie:
+Com o gerador pronto, a atividade 03 faz o treinador encontrar Pokémon na grama e tentar capturá-los. Há quatro pokébolas, e elas diferem em quase nada: o nome e a taxa. O commit `60c66f8` escreve a regra de captura uma vez, em `Pokebola`, e cria uma subclasse para cada variação:
+
+`Pokebola.java` @ `60c66f8`
+```java
+  public Pokebola() {
+    this("Pokebola", 0.4);
+  }
+
+  protected Pokebola(String nome, double taxa) {
+    this.nome = nome;
+    this.taxa = taxa;
+  }
+  // ...
+  protected double getTaxaDeCaptura(Pokemon p) {
+    return taxa - taxa * (p.getNivel()* 1.0/ Pokemon.NIVEL_MAXIMO) + 0.05;
+  }
+
+  public boolean capturar(Pokemon p) {
+    Random r = new Random();
+    return r.nextDouble() < getTaxaDeCaptura(p);
+  }
+```
+
+`GreatBall.java` @ `60c66f8`
+```java
+public class GreatBall extends Pokebola {
+
+  public GreatBall() {
+    super("GreatBall", 0.6);
+  }
+}
+```
+
+`MasterBall.java` @ `60c66f8`
+```java
+  @Override
+  public boolean capturar(Pokemon p) {
+    return true;
+  }
+```
+
+A classe `Batalha` liga o treinador ao Pokémon encontrado:
+
+`Batalha.java` @ `60c66f8`
+```java
+  public boolean tentarCaptura() {
+    Pokebola pokebola = treinador.arremessarPokebola();
+    if(pokebola != null && pokebola.capturar(pokemon)) {
+      System.out.println("Uma " + pokebola.getNome() + " foi arremesada");
+      if (treinador.capturar(pokemon)) {
+        encerrada = true;
+        return true;
+      }
+    }
+    if(!treinador.temPokebola()) {
+      encerrada = true;
+    }
+    return false;
+  }
+```
+
+**Por que essa decisão?**
+* **A regra de captura mora em um lugar só.** Sem herança, cada pokébola repetiria a fórmula e o sorteio. `GreatBall` tem cinco linhas porque herda tudo e só informa o que muda: `super("GreatBall", 0.6)`.
+* **O construtor com nome e taxa é `protected`.** Se fosse `public`, qualquer código poderia escrever `new Pokebola("Trapaça", 50)`. Assim, quem está fora só cria as pokébolas que existem; quem estende `Pokebola` consegue chamar `super(...)`.
+* **`getTaxaDeCaptura` também é `protected`.** A taxa é um detalhe do cálculo: quem usa a pokébola só precisa de `capturar`. `protected` deixa a subclasse enxergar o método sem colocá-lo na interface pública.
+* **`* 1.0` na fórmula evita a divisão inteira.** `getNivel()` e `NIVEL_MAXIMO` são `int`; sem o `1.0`, a divisão daria 0 para qualquer nível abaixo de 100.
+* **As pokébolas ficam no pacote `pokebola`**, separadas do resto do jogo, como `Mapa` e `Posicao` no pacote `mapa`.
+* **Esta primeira versão funciona, mas guarda três problemas.** `Batalha` imprime; um `boolean` não diz por que a captura falhou; e a `MasterBall` sobrescreve o método que contém o sorteio. Os três próximos estágios tratam de cada um.
+
+### 11. Um `enum` para o resultado: `ResultadoCaptura`
+
+Na versão do estágio 10, `tentarCaptura` devolvia `false` em três situações diferentes: o Pokémon escapou, o treinador não tinha pokébola ou a equipe estava cheia. Neste último caso havia um bug: a pokébola era gasta, a captura dava certo no sorteio, e o jogador lia "O pokemon quebrou a pokebola". Além disso, o `println` dentro de `Batalha` desfazia a separação do estágio 4. O commit `77df791` troca o `boolean` por um tipo que nomeia cada desfecho:
+
+`ResultadoCaptura.java` @ `77df791`
+```java
+public enum ResultadoCaptura {
+  CAPTURADO,
+  ESCAPOU,
+  SEM_POKEBOLA,
+  EQUIPE_CHEIA
+}
+```
+
+`Batalha.java` @ `77df791`
+```java
+  public ResultadoCaptura tentarCaptura() {
+    if (treinador.equipeCheia()) {
+      return ResultadoCaptura.EQUIPE_CHEIA;
+    }
+    ultimaPokebola = treinador.arremessarPokebola();
+    if (ultimaPokebola == null) {
+      encerrada = true;
+      return ResultadoCaptura.SEM_POKEBOLA;
+    }
+    if (ultimaPokebola.capturar(pokemon)) {
+      treinador.capturar(pokemon);
+      encerrada = true;
+      return ResultadoCaptura.CAPTURADO;
+    }
+    if (!treinador.temPokebola()) {
+      encerrada = true;
+    }
+    return ResultadoCaptura.ESCAPOU;
+  }
+```
+
+`JogoConsole.java` @ `77df791`
+```java
+        switch (batalha.tentarCaptura()) {
+          case EQUIPE_CHEIA -> System.out.println("Sua equipe está cheia");
+          case SEM_POKEBOLA -> System.out.println("Você não tem mais pokebolas");
+          case CAPTURADO -> System.out.println("Uma " + batalha.getUltimaPokebola().getNome()
+              + " foi arremessada. Parabens vc capturou um " + batalha.getPokemon());
+```
+
+`TesteBatalha.java` @ `77df791`
+```java
+  @Test
+  public void equipeCheiaNaoGastaPokebolaNemEncerraABatalha() {
+    Treinador treinador = new Treinador("Ash");
+    for (int i = 0; i < MAX_POKEMONS; i++) {
+      treinador.capturar(new Pokemon("Pokemon" + i, 1));
+    }
+    treinador.adicionarPokebola(new MasterBall());
+    Batalha batalha = new Batalha(treinador, pikachu);
+
+    assertEquals(ResultadoCaptura.EQUIPE_CHEIA, batalha.tentarCaptura());
+    assertTrue(treinador.temPokebola());
+    assertFalse(treinador.getPokemons().contains(pikachu));
+    assertFalse(batalha.terminou());
+  }
+```
+
+**Por que essa decisão?**
+* **Quatro desfechos não cabem em dois valores.** Com `boolean`, `JogoConsole` teria de adivinhar o motivo do `false`, ou perguntar de novo ao treinador o que a `Batalha` já sabia. O `enum` devolve a resposta inteira, e o `switch` mostra um caso por desfecho.
+* **Um `enum`, e não um texto.** Devolver `"equipe cheia"` funcionaria, mas é o problema do estágio 1: um erro de digitação só apareceria jogando.
+* **A equipe é conferida antes do arremesso.** É a ordem das linhas que corrige o bug: se não há lugar para o Pokémon, a pokébola nem sai da mochila.
+* **`Batalha` voltou a não imprimir.** A mensagem precisa do nome da pokébola usada, e por isso entra `getUltimaPokebola()`: a `Batalha` guarda o dado e `JogoConsole` monta o texto.
+* **Agora dá para testar.** `TesteBatalha` nasce neste commit. Para os cenários de falha não dependerem de sorte, o teste cria a sua própria subclasse, `PokebolaQueSempreFalha`. Herança serve também para isso: trocar uma peça por outra previsível.
+
+### 12. O que a subclasse pode mudar: `capturar` `final`
+
+A `MasterBall` do estágio 10 garantia a captura sobrescrevendo `capturar`. Funciona, mas `capturar` é o método que contém o sorteio: uma subclasse que o sobrescreve pode ignorar a regra inteira, de propósito ou por descuido. O commit `9080594` separa o que é igual para todas as pokébolas do que varia:
+
+`Pokebola.java` @ `9080594`
+```java
+  private static final double CHANCE_MINIMA = 0.05;
+  // ...
+  protected double getTaxaDeCaptura(Pokemon p) {
+    return taxa - taxa * (p.getNivel()* 1.0/ Pokemon.NIVEL_MAXIMO) + CHANCE_MINIMA;
+  }
+
+  public final boolean capturar(Pokemon p) {
+    Random r = new Random();
+    return r.nextDouble() < getTaxaDeCaptura(p);
+  }
+```
+
+`MasterBall.java` @ `9080594`
+```java
+  @Override
+  protected double getTaxaDeCaptura(Pokemon p) {
+    return 1.0;
+  }
+```
+
+`TesteBatalha.java` @ `9080594`
+```java
+  private static class PokebolaQueSempreFalha extends Pokebola {
+
+    PokebolaQueSempreFalha() {
+      super("PokebolaQueSempreFalha", 0);
+    }
+
+    @Override
+    protected double getTaxaDeCaptura(Pokemon p) {
+      return 0;
+    }
+  }
+```
+
+**Por que essa decisão?**
+* **`final` transforma uma combinação em regra.** "Não sobrescreva `capturar`" num comentário depende de alguém ler. Com `final`, a tentativa não compila.
+* **A variação fica num ponto só.** Toda pokébola sorteia do mesmo jeito; o que muda é a taxa. `MasterBall` passa a dizer "minha taxa é 1.0", e o sorteio continua acontecendo para ela também. Como `nextDouble()` devolve um valor sempre menor que 1, a captura segue garantida.
+* **O próprio teste dependia da brecha.** `PokebolaQueSempreFalha` também sobrescrevia `capturar`. Ao fechar o método, o compilador apontou o segundo lugar que precisava mudar.
+* **`0.05` ganhou nome.** `CHANCE_MINIMA` diz por que o número está na fórmula: mesmo no nível máximo sobra uma chance de captura.
+* Nem todo método deve ser `final`. `getTaxaDeCaptura` continua aberto porque é justamente o ponto que as subclasses precisam alterar.
+
+### 13. Sorteio controlável na hierarquia: `Random` nos construtores
+
+`capturar` ainda criava um `new Random()` a cada chamada. É o problema dos estágios 2 e 9, agora dentro de uma hierarquia: nenhum teste conseguia dizer se a `GreatBall` captura mais que a `Pokebola`. O commit `9bf0562` aplica a mesma solução, e cada subclasse repassa o `Random` para cima:
+
+`Pokebola.java` @ `9bf0562`
+```java
+  public Pokebola() {
+    this(new Random());
+  }
+
+  Pokebola(Random random) {
+    this("Pokebola", 0.4, random);
+  }
+
+  protected Pokebola(String nome, double taxa, Random random) {
+    this.nome = nome;
+    this.taxa = taxa;
+    this.random = random;
+  }
+```
+
+`GreatBall.java` @ `9bf0562`
+```java
+  public GreatBall() {
+    this(new Random());
+  }
+
+  GreatBall(Random random) {
+    super("GreatBall", 0.6, random);
+  }
+```
+
+`Jogo.java` @ `9bf0562`
+```java
+  public Jogo(String nome) {
+    this(nome, new Random());
+  }
+
+  public Jogo(String nome, Random random) {
+    // ...
+    mapa = new Mapa(LARGURA_MAPA, ALTURA_MAPA, random);
+    geradorDePokemon = new GeradorDePokemon(random);
+  }
+```
+
+`TestePokebola.java` @ `9bf0562`
+```java
+  // Random de teste: devolve sempre o mesmo valor, para o sorteio da captura ser previsível.
+  private static class SorteioFixo extends Random {
+
+    private final double valor;
+
+    SorteioFixo(double valor) {
+      this.valor = valor;
+    }
+
+    @Override
+    public double nextDouble() {
+      return valor;
+    }
+  }
+```
+
+`TestePokebola.java` @ `9bf0562`
+```java
+  // Nível 50: taxa = 0.4 * 0.5 + 0.05 = 0.25
+  @Test
+  public void pokebolaCapturaQuandoSorteioFicaAbaixoDaTaxa() {
+    assertTrue(new Pokebola(new SorteioFixo(0.24)).capturar(nivel50));
+  }
+
+  @Test
+  public void pokebolaNaoCapturaQuandoSorteioFicaAcimaDaTaxa() {
+    assertFalse(new Pokebola(new SorteioFixo(0.26)).capturar(nivel50));
+  }
+```
+
+**Por que essa decisão?**
+* **`this(...)` e `super(...)` formam uma corrente.** `new GreatBall()` chama `GreatBall(Random)`, que chama o construtor `protected` de `Pokebola`. Os atributos são atribuídos num único lugar, o último elo.
+* **O construtor com `Random` não tem modificador de acesso.** Só o pacote `pokebola` o enxerga, e os testes ficam nesse pacote. O jogo continua criando pokébolas com `new GreatBall()`, sem saber que o outro construtor existe.
+* **`SorteioFixo` é mais preciso que uma semente.** Com `new Random(42)`, o teste saberia apenas que o resultado se repete. Com um valor escolhido, ele confere a fronteira: 0.24 captura e 0.26 não, porque a taxa é 0.25. De novo, herança usada para trocar uma peça por outra previsível.
+* **O `Jogo` repassa o mesmo `Random` ao mapa e ao gerador.** Com uma semente, o terreno, os encontros e os Pokémon de uma partida inteira se repetem.
+
+### 14. Uma operação, um método: `Jogo.mover` devolve a `Batalha`
+
+Para andar e talvez batalhar, `JogoConsole` fazia três chamadas que só funcionavam nesta ordem: `jogo.mover(...)`, `jogo.encontrouPokemon()` e `jogo.iniciarBatalha()`. Nada impedia chamar `iniciarBatalha()` sem encontro. E `encontrouPokemon()` parecia uma pergunta, mas sorteava: duas chamadas seguidas podiam dar respostas diferentes. O commit `e13055a` junta as três numa operação:
+
+`Jogo.java` @ `e13055a`
+```java
+  public Batalha mover(Direcao direcao) {
+    Posicao destino = direcao.aplicarEm(treinador.getPosicao());
+    if (!mapa.ePosicaoValida(destino)) {
+      return null;
+    }
+    treinador.moverPara(destino);
+    if (mapa.sortearEncontro(destino)) {
+      return new Batalha(treinador, geradorDePokemon.gerar());
+    }
+    return null;
+  }
+```
+
+`JogoConsole.java` @ `e13055a`
+```java
+          Batalha batalha = jogo.mover(Direcao.get(opcao));
+          if(batalha != null) {
+            gerenciarBatalha(batalha, scanner);
+          }
+```
+
+O mesmo commit arruma o `Treinador`, que guardava pokémons com um contador e pokébolas procurando a primeira posição vazia:
+
+`Treinador.java` @ `e13055a`
+```java
+  public boolean adicionarPokemon(Pokemon pokemon) {
+    if(pokemon == null) return false;
+    for(int i = 0; i < MAX_POKEMONS; i++) {
+      if (pokemons[i] == null) {
+        pokemons[i] = pokemon;
+        return true;
+      }
+    }
+    return false;
+  }
+```
+
+`TesteJogo.java` @ `e13055a`
+```java
+  // sorteio 0.3: todo o mapa é grama (>= 0.2) e todo sorteio de encontro dá certo (< 0.5)
+  @Test
+  public void moverParaGramaIniciaBatalhaQuandoOSorteioDaEncontro() {
+    Jogo jogo = new Jogo("Ash", new SorteioFixo(0.3f));
+
+    Batalha batalha = jogo.mover(Direcao.DIR);
+
+    assertNotNull(batalha);
+    assertNotNull(batalha.getPokemon());
+    assertFalse(batalha.terminou());
+  }
+```
+
+**Por que essa decisão?**
+* **Quem chama não precisa mais saber a ordem.** O encontro é consequência do movimento, então quem move é quem decide se há batalha. O uso errado (batalha sem encontro, dois sorteios para o mesmo passo) deixou de ser possível.
+* **O nome avisa que há sorteio.** `encontrouPokemon` soava como consulta; `sortearEncontro` diz que cada chamada pode dar um resultado diferente.
+* **Devolver `null` é discutível.** O estágio 7 evitou `null` porque nada obriga quem chama a conferir, e isso continua verdadeiro aqui. A alternativa seria `Optional<Batalha>`, que exige generics. Fica como ponto para você pensar.
+* **`adicionarPokemon` em vez de `capturar`.** Havia `Treinador.capturar` e `Pokebola.capturar` fazendo coisas diferentes. Quem captura é a pokébola; o treinador apenas guarda o Pokémon.
+* **Uma estratégia só para os dois vetores.** O contador `qtdPokemons` saiu, e pokémons e pokébolas passaram a ser guardados do mesmo jeito. O preço é que `equipeCheia()` e `getPokemons()` agora percorrem o vetor; com seis posições, isso não pesa.
+* **Atributos que não mudam viraram `final`** em `Batalha` e `Pokebola`, como já acontecia em `Pokemon` e `Posicao`.
+
+### 15. Enum com dados: `Especie` e as 151 espécies
+
+A atividade 04 troca a fórmula de captura por uma que depende da espécie: taxa de captura, velocidade e peso. Até aqui, um `Pokemon` só sabia o próprio nome, e o gerador sorteava esse nome de uma lista de oito textos. O commit `4b6033d` (ponto de partida da atividade 04) dá um tipo à espécie:
 
 `Especie.java` @ `4b6033d`
 ```java
@@ -602,7 +941,7 @@ cd qxd0007-pokemon-2026.2
 java -cp build/classes/java/main br.ufc.qx.Main
 ```
 
-No jogo, digite `cima`, `baixo`, `esq` ou `dir` para mover o `T` e `sair` para encerrar. Maiúsculas e minúsculas são indiferentes. Para ler a história, use `git log --oneline` e `git show <commit>`, com os commits citados em cada estágio.
+No jogo, digite `cima`, `baixo`, `esq` ou `dir` para mover o `T` e `sair` para encerrar. Ao encontrar um Pokémon na grama, digite `p` para arremessar uma pokébola ou `f` para fugir. Maiúsculas e minúsculas são indiferentes. Para ler a história, use `git log --oneline` e `git show <commit>`, com os commits citados em cada estágio.
 
 ---
 
@@ -614,6 +953,9 @@ No jogo, digite `cima`, `baixo`, `esq` ou `dir` para mover o `T` e `sair` para e
 * Escreva `receberDano`, `curar` e `estaDerrotado` em `Pokemon`. Decida o que fazer quando o dano passa do HP restante, e compare com o que `setHp` faz hoje quando o valor é inválido.
 * Depois de ver exceções, faça o construtor de `Mapa` recusar largura ou altura menor que 1, e o de `Pokemon`, um nível menor que 1. Escreva os testes primeiro.
 * Rode `TesteGeradorDePokemon` e troque a semente de um dos geradores. Explique por que o teste passa a falhar. Depois, imagine `gerar()` criando o próprio `Random`: ainda seria possível escrever esse teste?
+* Compare `MasterBall` em `60c66f8` e em `9080594`. Tire o `final` de `capturar`, escreva uma pokébola que o sobrescreva sem sortear e veja quais testes de `TestePokebola` deixariam de proteger a regra.
+* Leia `TesteBatalha` e `TestePokebola` e encontre as duas subclasses criadas só para os testes. Diga o que cada uma substitui e por que uma semente fixa não bastaria.
+* `Jogo.mover` devolve `null` quando não há batalha. Depois de ver generics, reescreva-o com `Optional<Batalha>` e compare o código de `JogoConsole` nas duas versões.
 * Abra `Especie` e procure uma espécie com mais de 200 kg e outra com velocidade de pelo menos 100. Crie um `Pokemon` de cada no nível 50 e calcule à mão o HP máximo antes de conferir com `getHp()`.
 * Reescreva `calcularHpMax` dividindo antes de multiplicar e rode `TestePokemon`. Explique o valor que o teste passa a receber.
 * Reflita: `JogoConsole` não tem testes. Que tipo de mudança faria você querer testá-la, e onde essa lógica deveria morar?
