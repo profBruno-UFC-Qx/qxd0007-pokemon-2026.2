@@ -504,6 +504,83 @@ A próxima etapa do jogo é encontrar Pokémon selvagens na grama e tentar captu
 * **`NIVEL_MAXIMO` é `public`; `NIVEL_INICIAL` continua `private`.** As outras constantes do projeto são privadas porque só a própria classe as usa. O nível máximo é uma regra do domínio que a fórmula de captura, fora de `Pokemon`, vai consultar. Expor só o que alguém de fora precisa mantém a interface pequena.
 * **`getNome` e `getNivel` chegam junto com quem os lê.** O estágio 8 removeu campos que ninguém consultava; aqui o movimento é o inverso: os getters entram porque agora há leitores previstos (a mensagem "um Pidgey selvagem apareceu" e o cálculo da chance de captura). Um getter sem leitor seria só interface pública a mais para manter.
 
+### 10. Enum com dados: `Especie` e as 151 espécies
+
+Entre o estágio 9 e este, a atividade 03 acrescentou a captura com pokébolas (`Pokebola` e `Batalha`), que ainda não tem estágios neste roteiro. A atividade 04 troca a fórmula de captura por uma que depende da espécie: taxa de captura, velocidade e peso. Até aqui, um `Pokemon` só sabia o próprio nome, e o gerador sorteava esse nome de uma lista de oito textos. O commit `4b6033d` (ponto de partida da atividade 04) dá um tipo à espécie:
+
+`Especie.java` @ `4b6033d`
+```java
+// As 151 espécies da primeira geração, com os dados do jogo publicados pela PokeAPI (https://pokeapi.co).
+public enum Especie {
+  BULBASAUR("Bulbasaur", 45, 45, 45, 6.9, 70),
+  IVYSAUR("Ivysaur", 45, 60, 60, 13.0, 70),
+  // ...
+  MEWTWO("Mewtwo", 3, 106, 130, 122.0, 0),
+  MEW("Mew", 45, 100, 100, 4.0, 100);
+
+  private final String nome;
+  private final int taxaDeCaptura;
+  private final int hpBase;
+  private final int velocidade;
+  private final double peso;
+  private final int amizadeBase;
+```
+
+`Pokemon.java` @ `4b6033d`
+```java
+  public Pokemon(Especie especie, int nivel) {
+    this.especie = especie;
+    this.nivel = nivel;
+    this.hpMax = calcularHpMax(especie, nivel);
+    setHp(this.hpMax);
+  }
+
+  private static int calcularHpMax(Especie especie, int nivel) {
+    return 2 * especie.getHpBase() * nivel / 100 + nivel + 10;
+  }
+
+  public String getNome() {
+    return especie.getNome();
+  }
+
+  public int getTaxaDaEspecie() {
+    return especie.getTaxaDeCaptura();
+  }
+```
+
+`GeradorDePokemon.java` @ `4b6033d`
+```java
+  public Pokemon gerar() {
+    Especie[] especies = Especie.values();
+    Especie especie = especies[random.nextInt(especies.length)];
+    int nivel = NIVEL_MIN_SELVAGEM + random.nextInt(NIVEL_MAX_SELVAGEM - NIVEL_MIN_SELVAGEM + 1);
+    return new Pokemon(especie, nivel);
+  }
+```
+
+`TestePokemon.java` @ `4b6033d`
+```java
+  @Test
+  public void caracteristicasVemDaEspecie() {
+    Pokemon snorlax = new Pokemon(Especie.SNORLAX, 5);
+
+    assertEquals("Snorlax", snorlax.getNome());
+    assertEquals(25, snorlax.getTaxaDaEspecie());
+    assertEquals(30, snorlax.getVelocidade());
+    assertEquals(460.0, snorlax.getPeso());
+  }
+```
+
+**Por que essa decisão?**
+* **Um tipo para a espécie, e não mais parâmetros no construtor.** A alternativa seria `new Pokemon("Snorlax", 5, 25, 30, 460.0)`: cinco valores soltos, e nada impediria um Snorlax de 6 kg. Com `Especie`, os dados de cada espécie são escritos uma vez e viajam juntos. É o mesmo raciocínio do estágio 6, em que `x` e `y` viraram `Posicao`.
+* **Um `enum`, porque o conjunto é fechado e conhecido.** O estágio 7 já mostrou um `enum` com atributos (`Direcao`, com `dx` e `dy`); aqui são 151 constantes em vez de quatro. Um nome inexistente, como `Especie.PIKACHUU`, não compila.
+* **Os dados ficam no código, e não num arquivo.** Ler as espécies de um arquivo exigiria entrada e saída e tratamento de exceções, que a turma ainda não viu. As linhas do `enum` foram geradas a partir das tabelas da PokeAPI, e não digitadas à mão.
+* **`Pokemon` pergunta à espécie em vez de copiar os dados.** `getTaxaDaEspecie()`, `getVelocidade()` e `getPeso()` só repassam a pergunta. Copiar os valores para atributos de `Pokemon` criaria uma segunda fonte de verdade, o problema que o estágio 8 removeu do `Mapa`.
+* **O HP máximo continua sendo calculado, agora a partir de dois dados.** O estágio 3 tirou o `hp` do construtor porque ele era consequência do nível. A regra se mantém: `hpMax` é consequência da espécie e do nível, e quem cria o Pokémon não informa nenhum HP. A fórmula é a do jogo, sem os valores individuais e de esforço.
+* **A ordem das operações importa na fórmula.** Tudo ali é `int`. `2 * hpBase * nivel / 100` multiplica antes de dividir; escrever `nivel / 100` primeiro daria 0 para qualquer nível abaixo de 100.
+* **`equals` compara as espécies com `==`.** Cada constante de um `enum` existe uma única vez, então comparar referências é correto e não quebra com `null`.
+* **Dados que chegam antes de quem os lê.** `velocidade`, `peso` e `taxaDeCaptura` já têm getters em `Pokemon`, mas quem vai lê-los são as pokébolas da atividade 04. `amizadeBase` nem isso: é o dado que a atividade pede para você usar ao criar a amizade do Pokémon. Compare com o estágio 8, que removeu campos sem leitor: a diferença é que aqui o leitor já está definido.
+
 ---
 
 ## 🛠️ Tecnologias Utilizadas
@@ -537,6 +614,8 @@ No jogo, digite `cima`, `baixo`, `esq` ou `dir` para mover o `T` e `sair` para e
 * Escreva `receberDano`, `curar` e `estaDerrotado` em `Pokemon`. Decida o que fazer quando o dano passa do HP restante, e compare com o que `setHp` faz hoje quando o valor é inválido.
 * Depois de ver exceções, faça o construtor de `Mapa` recusar largura ou altura menor que 1, e o de `Pokemon`, um nível menor que 1. Escreva os testes primeiro.
 * Rode `TesteGeradorDePokemon` e troque a semente de um dos geradores. Explique por que o teste passa a falhar. Depois, imagine `gerar()` criando o próprio `Random`: ainda seria possível escrever esse teste?
+* Abra `Especie` e procure uma espécie com mais de 200 kg e outra com velocidade de pelo menos 100. Crie um `Pokemon` de cada no nível 50 e calcule à mão o HP máximo antes de conferir com `getHp()`.
+* Reescreva `calcularHpMax` dividindo antes de multiplicar e rode `TestePokemon`. Explique o valor que o teste passa a receber.
 * Reflita: `JogoConsole` não tem testes. Que tipo de mudança faria você querer testá-la, e onde essa lógica deveria morar?
 
 ---
