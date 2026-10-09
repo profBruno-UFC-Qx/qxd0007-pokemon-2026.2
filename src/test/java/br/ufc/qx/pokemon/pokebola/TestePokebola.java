@@ -1,5 +1,6 @@
 package br.ufc.qx.pokemon.pokebola;
 
+import br.ufc.qx.pokemon.Especie;
 import br.ufc.qx.pokemon.Pokemon;
 import org.junit.jupiter.api.Test;
 
@@ -26,9 +27,9 @@ public class TestePokebola {
     }
   }
 
-  private final Pokemon nivel1 = new Pokemon("Pikachu", 1);
-  private final Pokemon nivel50 = new Pokemon("Pikachu", 50);
-  private final Pokemon nivel100 = new Pokemon("Pikachu", Pokemon.NIVEL_MAXIMO);
+  private final Pokemon nivel1 = new Pokemon(Especie.PIKACHU, 1);
+  private final Pokemon nivel50 = new Pokemon(Especie.PIKACHU, 50);
+  private final Pokemon nivel100 = new Pokemon(Especie.PIKACHU, Pokemon.NIVEL_MAXIMO);
 
   @Test
   public void getNomeIdentificaCadaTipoDePokebola() {

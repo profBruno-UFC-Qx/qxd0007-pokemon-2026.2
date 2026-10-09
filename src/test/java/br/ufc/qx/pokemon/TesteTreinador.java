@@ -39,7 +39,7 @@ public class TesteTreinador {
   public void adicionarPokemonAceitaEnquantoHouverEspaco() {
     Treinador treinador = new Treinador("Ash");
     for (int i = 0; i < 6; i++) {
-      assertTrue(treinador.adicionarPokemon(new Pokemon("Pokemon" + i, 1)));
+      assertTrue(treinador.adicionarPokemon(new Pokemon(Especie.values()[i], 1)));
     }
   }
 
@@ -47,15 +47,15 @@ public class TesteTreinador {
   public void adicionarPokemonFalhaQuandoEquipeEstaCheia() {
     Treinador treinador = new Treinador("Ash");
     for (int i = 0; i < 6; i++) {
-      treinador.adicionarPokemon(new Pokemon("Pokemon" + i, 1));
+      treinador.adicionarPokemon(new Pokemon(Especie.values()[i], 1));
     }
-    assertFalse(treinador.adicionarPokemon(new Pokemon("Extra", 1)));
+    assertFalse(treinador.adicionarPokemon(new Pokemon(Especie.MEW, 1)));
   }
 
   @Test
   public void getPokemonsDevolveApenasOsPokemonsCapturados() {
     Treinador treinador = new Treinador("Ash");
-    Pokemon pikachu = new Pokemon("Pikachu", 5);
+    Pokemon pikachu = new Pokemon(Especie.PIKACHU, 5);
     treinador.adicionarPokemon(pikachu);
 
     List<Pokemon> pokemons = treinador.getPokemons();
@@ -75,7 +75,7 @@ public class TesteTreinador {
     Treinador treinador = new Treinador("Ash");
 
     assertThrows(UnsupportedOperationException.class,
-        () -> treinador.getPokemons().add(new Pokemon("Intruso", 1)));
+        () -> treinador.getPokemons().add(new Pokemon(Especie.MEW, 1)));
   }
 
   @Test
@@ -89,8 +89,8 @@ public class TesteTreinador {
   @Test
   public void getPokemonsDevolveOsPokemonsNaOrdemDeCaptura() {
     Treinador treinador = new Treinador("Ash");
-    Pokemon pikachu = new Pokemon("Pikachu", 5);
-    Pokemon eevee = new Pokemon("Eevee", 3);
+    Pokemon pikachu = new Pokemon(Especie.PIKACHU, 5);
+    Pokemon eevee = new Pokemon(Especie.EEVEE, 3);
     treinador.adicionarPokemon(pikachu);
     treinador.adicionarPokemon(eevee);
 
@@ -102,7 +102,7 @@ public class TesteTreinador {
     Treinador treinador = new Treinador("Ash");
     for (int i = 0; i < 6; i++) {
       assertFalse(treinador.equipeCheia());
-      treinador.adicionarPokemon(new Pokemon("Pokemon" + i, 1));
+      treinador.adicionarPokemon(new Pokemon(Especie.values()[i], 1));
     }
     assertTrue(treinador.equipeCheia());
   }

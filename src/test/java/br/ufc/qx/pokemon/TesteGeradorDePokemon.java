@@ -33,4 +33,24 @@ public class TesteGeradorDePokemon {
     }
     assertTrue(gerouNivel1 && gerouNivel30, "Os extremos da faixa deveriam ser sorteados");
   }
+
+  @Test
+  public void geradorSorteiaEntreAs151Especies() {
+    GeradorDePokemon gerador = new GeradorDePokemon(new Random(7));
+    boolean[] sorteada = new boolean[Especie.values().length];
+
+    for (int i = 0; i < 5000; i++) {
+      Pokemon pokemon = gerador.gerar();
+      for (Especie especie : Especie.values()) {
+        if (especie.getNome().equals(pokemon.getNome())) {
+          sorteada[especie.ordinal()] = true;
+        }
+      }
+    }
+
+    assertEquals(151, sorteada.length);
+    for (Especie especie : Especie.values()) {
+      assertTrue(sorteada[especie.ordinal()], "Espécie nunca sorteada: " + especie);
+    }
+  }
 }

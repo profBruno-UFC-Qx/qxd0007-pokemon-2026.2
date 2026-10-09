@@ -4,9 +4,6 @@ import java.util.Random;
 
 public class GeradorDePokemon {
 
-  private static final String[] NOMES = {
-      "Mewto", "Mew", "Zapdos", "Articuno", "Moltres", "Bellsprout", "Pikachu", "Eevee"
-  };
   private static final int NIVEL_MIN_SELVAGEM = 1;
   private static final int NIVEL_MAX_SELVAGEM = 30;
 
@@ -21,8 +18,9 @@ public class GeradorDePokemon {
   }
 
   public Pokemon gerar() {
-    String nome = NOMES[random.nextInt(NOMES.length)];
+    Especie[] especies = Especie.values();
+    Especie especie = especies[random.nextInt(especies.length)];
     int nivel = NIVEL_MIN_SELVAGEM + random.nextInt(NIVEL_MAX_SELVAGEM - NIVEL_MIN_SELVAGEM + 1);
-    return new Pokemon(nome, nivel);
+    return new Pokemon(especie, nivel);
   }
 }

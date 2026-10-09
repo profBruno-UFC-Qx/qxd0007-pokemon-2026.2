@@ -30,7 +30,7 @@ public class TesteBatalha {
 
   private static final int MAX_POKEMONS = 6;
 
-  private final Pokemon pikachu = new Pokemon("Pikachu", 5);
+  private final Pokemon pikachu = new Pokemon(Especie.PIKACHU, 5);
 
   @Test
   public void batalhaComecaEmAndamento() {
@@ -103,7 +103,7 @@ public class TesteBatalha {
   public void equipeCheiaNaoGastaPokebolaNemEncerraABatalha() {
     Treinador treinador = new Treinador("Ash");
     for (int i = 0; i < MAX_POKEMONS; i++) {
-      treinador.adicionarPokemon(new Pokemon("Pokemon" + i, 1));
+      treinador.adicionarPokemon(new Pokemon(Especie.values()[i], 1));
     }
     treinador.adicionarPokebola(new MasterBall());
     Batalha batalha = new Batalha(treinador, pikachu);

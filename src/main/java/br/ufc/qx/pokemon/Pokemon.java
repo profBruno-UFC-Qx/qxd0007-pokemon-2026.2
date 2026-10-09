@@ -7,28 +7,40 @@ public class Pokemon {
   public static final int NIVEL_MAXIMO = 100;
   private static final int NIVEL_INICIAL = 1;
 
-  private final String nome;
+  private final Especie especie;
   private final int nivel;
   private final int hpMax;
   private int hp;
 
-  public Pokemon(String nome) {
-    this(nome, NIVEL_INICIAL);
+  public Pokemon(Especie especie) {
+    this(especie, NIVEL_INICIAL);
   }
 
-  public Pokemon(String nome, int nivel) {
-    this.nome = nome;
+  public Pokemon(Especie especie, int nivel) {
+    this.especie = especie;
     this.nivel = nivel;
-    this.hpMax = calcularHpMax(nivel);
+    this.hpMax = calcularHpMax(especie, nivel);
     setHp(this.hpMax);
   }
 
-  private static int calcularHpMax(int nivel) {
-    return nivel * (25 + nivel);
+  private static int calcularHpMax(Especie especie, int nivel) {
+    return 2 * especie.getHpBase() * nivel / 100 + nivel + 10;
   }
 
   public String getNome() {
-    return nome;
+    return especie.getNome();
+  }
+
+  public int getTaxaDaEspecie() {
+    return especie.getTaxaDeCaptura();
+  }
+
+  public int getVelocidade() {
+    return especie.getVelocidade();
+  }
+
+  public double getPeso() {
+    return especie.getPeso();
   }
 
   public int getNivel() {
@@ -49,18 +61,18 @@ public class Pokemon {
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     Pokemon pokemon = (Pokemon) o;
-    return nivel == pokemon.nivel && Objects.equals(nome, pokemon.nome);
+    return nivel == pokemon.nivel && especie == pokemon.especie;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(nome, nivel);
+    return Objects.hash(especie, nivel);
   }
 
   @Override
   public String toString() {
     return "Pokemon{" +
-            "nome='" + nome + '\'' +
+            "nome='" + getNome() + '\'' +
             ", hp=" + hp +
             ", nivel=" + nivel +
             ", hpMax=" + hpMax +
