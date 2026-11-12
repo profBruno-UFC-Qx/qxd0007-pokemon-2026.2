@@ -9,7 +9,7 @@ import java.util.List;
 public class Treinador {
 
   private static final int MAX_POKEMONS = 6;
-  private static final int MAX_POKEBOLAS = 6;
+  private static final int MAX_POKEBOLAS = 8;
 
   private String nome;
   private Posicao posicao;

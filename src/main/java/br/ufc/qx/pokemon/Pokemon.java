@@ -6,11 +6,15 @@ public class Pokemon {
 
   public static final int NIVEL_MAXIMO = 100;
   private static final int NIVEL_INICIAL = 1;
+  private static final int AMIZADE_MINIMA = 0;
+  private static final int AMIZADE_MAXIMA = 255;
 
   private final Especie especie;
   private final int nivel;
   private final int hpMax;
   private int hp;
+
+  private int amizade;
 
   public Pokemon(Especie especie) {
     this(especie, NIVEL_INICIAL);
@@ -20,6 +24,7 @@ public class Pokemon {
     this.especie = especie;
     this.nivel = nivel;
     this.hpMax = calcularHpMax(especie, nivel);
+    this.setAmizade(especie.getAmizadeBase());
     setHp(this.hpMax);
   }
 
@@ -51,6 +56,18 @@ public class Pokemon {
     return this.hp;
   }
 
+  public int getHpMax() { return this.hpMax; }
+
+
+  public void setAmizade(int amizade) {
+    if (amizade >= AMIZADE_MINIMA && amizade <= AMIZADE_MAXIMA) {
+      this.amizade = amizade;
+    }
+  }
+
+  public int getAmizade() {
+    return this.amizade;
+  }
   public void setHp(int hp) {
     if(hp >= 0 && hp <= hpMax) {
       this.hp = hp;
