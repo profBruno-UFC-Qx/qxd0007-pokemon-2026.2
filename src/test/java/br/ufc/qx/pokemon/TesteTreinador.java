@@ -16,6 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TesteTreinador {
 
+  private static final int MAX_POKEMONS = 6;
+  private static final int MAX_POKEBOLAS = 8;
+
   @Test
   public void moverParaBaixo() {
     Treinador treinador = new Treinador("Ash");
@@ -38,7 +41,7 @@ public class TesteTreinador {
   @Test
   public void adicionarPokemonAceitaEnquantoHouverEspaco() {
     Treinador treinador = new Treinador("Ash");
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < MAX_POKEMONS; i++) {
       assertTrue(treinador.adicionarPokemon(new Pokemon(Especie.values()[i], 1)));
     }
   }
@@ -46,7 +49,7 @@ public class TesteTreinador {
   @Test
   public void adicionarPokemonFalhaQuandoEquipeEstaCheia() {
     Treinador treinador = new Treinador("Ash");
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < MAX_POKEMONS; i++) {
       treinador.adicionarPokemon(new Pokemon(Especie.values()[i], 1));
     }
     assertFalse(treinador.adicionarPokemon(new Pokemon(Especie.MEW, 1)));
@@ -100,7 +103,7 @@ public class TesteTreinador {
   @Test
   public void equipeCheiaSoQuandoTodasAsVagasEstaoOcupadas() {
     Treinador treinador = new Treinador("Ash");
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < MAX_POKEMONS; i++) {
       assertFalse(treinador.equipeCheia());
       treinador.adicionarPokemon(new Pokemon(Especie.values()[i], 1));
     }
@@ -117,7 +120,7 @@ public class TesteTreinador {
   @Test
   public void adicionarPokebolaAceitaEnquantoHouverEspaco() {
     Treinador treinador = new Treinador("Ash");
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < MAX_POKEBOLAS; i++) {
       assertTrue(treinador.adicionarPokebola(new Pokebola()));
     }
     assertTrue(treinador.temPokebola());
@@ -126,7 +129,7 @@ public class TesteTreinador {
   @Test
   public void adicionarPokebolaFalhaQuandoNaoHaMaisEspaco() {
     Treinador treinador = new Treinador("Ash");
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < MAX_POKEBOLAS; i++) {
       treinador.adicionarPokebola(new Pokebola());
     }
     assertFalse(treinador.adicionarPokebola(new Pokebola()));
@@ -172,7 +175,7 @@ public class TesteTreinador {
   @Test
   public void arremessarPokebolaLiberaEspacoParaNovaPokebola() {
     Treinador treinador = new Treinador("Ash");
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < MAX_POKEBOLAS; i++) {
       treinador.adicionarPokebola(new Pokebola());
     }
     treinador.arremessarPokebola();

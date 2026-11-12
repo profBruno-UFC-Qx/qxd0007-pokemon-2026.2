@@ -57,4 +57,71 @@ public class TestePokemon {
     assertEquals(30, snorlax.getVelocidade());
     assertEquals(460.0, snorlax.getPeso());
   }
+
+  @Test
+  public void getHpMaxDependeDaEspecieEDoNivel() {
+    Pokemon pikachu = new Pokemon(Especie.PIKACHU, 50);
+
+    // 2 * hpBase * nivel / 100 + nivel + 10 = 2 * 35 * 50 / 100 + 50 + 10
+    assertEquals(95, pikachu.getHpMax());
+  }
+
+  @Test
+  public void getHpMaxNaoMudaQuandoOHpDiminui() {
+    Pokemon pikachu = new Pokemon(Especie.PIKACHU, 50);
+
+    pikachu.setHp(1);
+
+    assertEquals(95, pikachu.getHpMax());
+  }
+
+  @Test
+  public void pokemonComecaComAAmizadeBaseDaEspecie() {
+    assertEquals(70, new Pokemon(Especie.PIKACHU, 5).getAmizade());
+    assertEquals(100, new Pokemon(Especie.MEW, 5).getAmizade());
+    assertEquals(0, new Pokemon(Especie.MEWTWO, 5).getAmizade());
+  }
+
+  @Test
+  public void setAmizadeAceitaValoresDe0A255() {
+    Pokemon pikachu = new Pokemon(Especie.PIKACHU, 5);
+
+    pikachu.setAmizade(0);
+    assertEquals(0, pikachu.getAmizade());
+
+    pikachu.setAmizade(255);
+    assertEquals(255, pikachu.getAmizade());
+  }
+
+  @Test
+  public void setAmizadeForaDaFaixaEIgnorado() {
+    Pokemon pikachu = new Pokemon(Especie.PIKACHU, 5);
+
+    pikachu.setAmizade(-1);
+    assertEquals(70, pikachu.getAmizade());
+
+    pikachu.setAmizade(256);
+    assertEquals(70, pikachu.getAmizade());
+  }
+
+  @Test
+  public void setAmizadeAceitaValoresAbaixoDaAmizadeBase() {
+    Pokemon pikachu = new Pokemon(Especie.PIKACHU, 5);
+
+    pikachu.setAmizade(10);
+
+    assertEquals(10, pikachu.getAmizade());
+  }
+
+  @Test
+  public void setAmizadeForaDaFaixaMantemOValorAtual() {
+    Pokemon pikachu = new Pokemon(Especie.PIKACHU, 5);
+    pikachu.setAmizade(200);
+
+    pikachu.setAmizade(300);
+    assertEquals(200, pikachu.getAmizade());
+
+    pikachu.setAmizade(-5);
+    assertEquals(200, pikachu.getAmizade());
+  }
 }

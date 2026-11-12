@@ -9,6 +9,6 @@ public class UltraBall extends Pokebola {
   }
 
   UltraBall(Random random) {
-    super("UltraBall", 0.8, random);
+    super("UltraBall", 2, random);
   }
 }

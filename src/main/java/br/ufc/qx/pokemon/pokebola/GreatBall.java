@@ -9,6 +9,6 @@ public class GreatBall extends Pokebola {
   }
 
   GreatBall(Random random) {
-    super("GreatBall", 0.6, random);
+    super("GreatBall", 1.5, random);
   }
 }

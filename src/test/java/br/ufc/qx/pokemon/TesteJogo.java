@@ -1,11 +1,20 @@
 package br.ufc.qx.pokemon;
 
 import br.ufc.qx.pokemon.mapa.Posicao;
+import br.ufc.qx.pokemon.pokebola.FastBall;
+import br.ufc.qx.pokemon.pokebola.FriendBall;
+import br.ufc.qx.pokemon.pokebola.GreatBall;
+import br.ufc.qx.pokemon.pokebola.HealBall;
+import br.ufc.qx.pokemon.pokebola.HeavyBall;
 import br.ufc.qx.pokemon.pokebola.MasterBall;
+import br.ufc.qx.pokemon.pokebola.Pokebola;
+import br.ufc.qx.pokemon.pokebola.UltraBall;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -140,9 +149,29 @@ public class TesteJogo {
     Jogo jogo = new Jogo("Ash", new SorteioFixo(0.3f));
     Batalha batalha = jogo.mover(Direcao.DIR);
 
-    jogo.getTreinador().adicionarPokebola(new MasterBall());
+    Treinador treinador = jogo.getTreinador();
+    while (treinador.temPokebola()) {
+      treinador.arremessarPokebola();
+    }
+    treinador.adicionarPokebola(new MasterBall());
     batalha.tentarCaptura();
 
     assertEquals(List.of(batalha.getPokemon()), jogo.getTreinador().getPokemons());
+  }
+
+  @Test
+  public void treinadorComecaComUmaPokebolaDeCadaTipo() {
+    Treinador treinador = new Jogo("Ash").getTreinador();
+    Set<Class<?>> tipos = new HashSet<>();
+    int quantidade = 0;
+
+    while (treinador.temPokebola()) {
+      tipos.add(treinador.arremessarPokebola().getClass());
+      quantidade++;
+    }
+
+    assertEquals(8, quantidade);
+    assertEquals(Set.of(Pokebola.class, GreatBall.class, UltraBall.class, MasterBall.class,
+        FastBall.class, HeavyBall.class, FriendBall.class, HealBall.class), tipos);
   }
 }

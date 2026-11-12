@@ -16,6 +16,6 @@ public class MasterBall extends Pokebola {
 
   @Override
   protected double getTaxaDeCaptura(Pokemon p) {
-    return 1.0;
+    return 255;
   }
 }

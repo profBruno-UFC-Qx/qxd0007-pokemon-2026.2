@@ -4,5 +4,6 @@ public enum ResultadoCaptura {
   CAPTURADO,
   ESCAPOU,
   SEM_POKEBOLA,
-  EQUIPE_CHEIA
+  EQUIPE_CHEIA;
+
 }

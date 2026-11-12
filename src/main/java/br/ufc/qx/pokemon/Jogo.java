@@ -2,10 +2,7 @@ package br.ufc.qx.pokemon;
 
 import br.ufc.qx.pokemon.mapa.Mapa;
 import br.ufc.qx.pokemon.mapa.Posicao;
-import br.ufc.qx.pokemon.pokebola.GreatBall;
-import br.ufc.qx.pokemon.pokebola.MasterBall;
-import br.ufc.qx.pokemon.pokebola.Pokebola;
-import br.ufc.qx.pokemon.pokebola.UltraBall;
+import br.ufc.qx.pokemon.pokebola.*;
 
 import java.util.Random;
 
@@ -28,6 +25,10 @@ public class Jogo {
     treinador.adicionarPokebola(new GreatBall());
     treinador.adicionarPokebola(new UltraBall());
     treinador.adicionarPokebola(new MasterBall());
+    treinador.adicionarPokebola(new FriendBall());
+    treinador.adicionarPokebola(new HeavyBall());
+    treinador.adicionarPokebola(new HealBall());
+    treinador.adicionarPokebola(new FastBall());
 
     mapa = new Mapa(LARGURA_MAPA, ALTURA_MAPA, random);
     geradorDePokemon = new GeradorDePokemon(random);
