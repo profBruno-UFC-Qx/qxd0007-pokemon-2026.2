@@ -1,6 +1,6 @@
 # Pokemon — do código tudo-em-um à separação de responsabilidades em Java
 
-Um treinador anda por um mapa desenhado no terminal e tenta capturar os Pokémon que encontra na grama. O jogo é pequeno de propósito: este repositório existe para ser **lido**, não jogado. Ele é dirigido a quem já escreveu classes com atributos, construtores e métodos em Java e agora precisa decidir *onde cada responsabilidade mora*. Ao acompanhar a evolução do código, você vê como o encapsulamento, a testabilidade, o objeto de valor, a herança e a separação entre regras do jogo e entrada/saída surgem de problemas concretos, e não de regras decoradas.
+Um treinador anda por um mapa desenhado no terminal e tenta capturar os Pokémon que encontra na grama. O jogo é pequeno de propósito: este repositório existe para ser **lido**, não jogado. Ele é dirigido a quem já escreveu classes com atributos, construtores e métodos em Java e agora precisa decidir *onde cada responsabilidade mora*. Ao acompanhar a evolução do código, você vê como o encapsulamento, a testabilidade, o objeto de valor, a herança, as classes abstratas e a separação entre regras do jogo e entrada/saída surgem de problemas concretos, e não de regras decoradas.
 
 Os trechos abaixo vêm dos commits indicados (`git show <commit>:<arquivo>`), na versão de cada estágio, e podem diferir do código atual.
 
@@ -920,6 +920,141 @@ public enum Especie {
 * **`equals` compara as espécies com `==`.** Cada constante de um `enum` existe uma única vez, então comparar referências é correto e não quebra com `null`.
 * **Dados que chegam antes de quem os lê.** `velocidade`, `peso` e `taxaDeCaptura` já têm getters em `Pokemon`, mas quem vai lê-los são as pokébolas da atividade 04. `amizadeBase` nem isso: é o dado que a atividade pede para você usar ao criar a amizade do Pokémon. Compare com o estágio 8, que removeu campos sem leitor: a diferença é que aqui o leitor já está definido.
 
+### 16. Métodos-gancho: a fórmula da espécie e os pontos que cada pokébola altera
+
+A atividade 04 troca a fórmula de captura pela do jogo: a chance depende do HP atual, da taxa da espécie e de um bônus da pokébola, e o sorteio vai de 0 a 255. Duas pokébolas novas mudam partes diferentes da conta: a `FastBall` muda o bônus conforme a velocidade, e a `HeavyBall` muda a taxa da espécie conforme o peso. O commit `064716c` divide a fórmula em métodos que as subclasses podem sobrescrever:
+
+`Pokebola.java` @ `064716c`
+```java
+  protected static final int TAXA_MINIMA = 1;
+  protected static final int TAXA_MAXIMA = 255;
+  private static final int SORTEIO_MAXIMO = 255;
+  // ...
+  protected double getBonus(Pokemon p) {
+    return bonus;
+  }
+
+  protected int getTaxaDaEspecie(Pokemon p) {
+    return p.getTaxaDaEspecie();
+  }
+
+  protected double getTaxaDeCaptura(Pokemon p) {
+    double fatorHp = (3.0 * p.getHpMax() - 2.0 * p.getHp()) / (3.0 * p.getHpMax());
+    double taxaDeCaptura = fatorHp * getTaxaDaEspecie(p) * getBonus(p);
+    return Math.min(Math.max(TAXA_MINIMA, taxaDeCaptura), TAXA_MAXIMA);
+  }
+
+  public boolean capturar(Pokemon p) {
+    int sorteio = random.nextInt(SORTEIO_MAXIMO + 1);
+    return sorteio <= getTaxaDeCaptura(p);
+  }
+```
+
+`FastBall.java` @ `064716c`
+```java
+  @Override
+  protected double getBonus(Pokemon pokemon) {
+    return pokemon.getVelocidade() >= 100 ? 4 : 1;
+  }
+```
+
+`HeavyBall.java` @ `064716c`
+```java
+  @Override
+  protected int getTaxaDaEspecie(Pokemon pokemon) {
+    return Math.max(TAXA_DA_ESPECIE_MINIMA, pokemon.getTaxaDaEspecie() + ajustePorPeso(pokemon.getPeso()));
+  }
+```
+
+`MasterBall.java` @ `064716c`
+```java
+  @Override
+  protected double getTaxaDeCaptura(Pokemon p) {
+    return 255;
+  }
+```
+
+`TestePokebola.java` @ `064716c`
+```java
+  // Snorlax pesa 460 kg: 1/3 * (25 + 30) = 18.33
+  @Test
+  public void heavyBallCapturaPokemonPesadoComSorteioEmQueAPokebolaFalha() {
+    Pokemon snorlax = new Pokemon(Especie.SNORLAX, 50);
+
+    assertFalse(new Pokebola(new SorteioFixo(18)).capturar(snorlax));
+    assertTrue(new HeavyBall(new SorteioFixo(18)).capturar(snorlax));
+  }
+```
+
+**Por que essa decisão?**
+* **Um gancho para cada parte que varia.** A alternativa seria cada pokébola nova sobrescrever `getTaxaDeCaptura` inteiro e repetir o fator de HP e os limites. Com `getBonus` e `getTaxaDaEspecie`, a `FastBall` e a `HeavyBall` sobrescrevem só o fator que mudam, e a fórmula continua escrita uma vez. É o estágio 12 levado um passo adiante: lá a variação estava num ponto só; aqui ela está em dois, porque há dois tipos de variação.
+* **As pokébolas antigas não ganharam código.** `GreatBall` e `UltraBall` continuam só com `super("GreatBall", 1.5, random)`: o número que antes era a taxa passou a ser o bônus. O construtor `protected` do estágio 10 aguentou a troca de fórmula sem mudar de forma.
+* **`MasterBall` continua usando o sorteio.** Ela sobrescreve o resultado da fórmula com o valor máximo, 255. Como o sorteio vai de 0 a 255 e a comparação é `<=`, até o pior sorteio captura, que é exatamente o que o teste `masterBallCapturaMesmoComOPiorSorteio` confere.
+* **Os limites ficam no fim da fórmula.** `Math.min(Math.max(...))` garante a faixa de 1 a 255 para qualquer combinação de ganchos. A `HeavyBall` tem um limite próprio (`TAXA_DA_ESPECIE_MINIMA`) porque subtrair 20 da taxa do Zapdos, que é 3, daria um número negativo antes mesmo da multiplicação.
+* **O `SorteioFixo` mudou junto com o sorteio.** Ele agora sobrescreve `nextInt` e confere que a faixa pedida é de 0 a 256 (exclusivo). Assim o teste pega também um erro de fronteira, como sortear até 254.
+* **Repare em `capturar`: ele perdeu o `final`.** O motivo está no próximo estágio.
+
+### 17. Classe abstrata: `PokebolaComEfeito`
+
+A `FriendBall` e a `HealBall` capturam como uma pokébola comum, mas fazem algo *depois* da captura: uma muda a amizade do Pokémon para 200, a outra restaura o HP. Para isso, `Pokemon` ganha a amizade, que começa com a amizade base da espécie e só aceita valores de 0 a 255:
+
+`Pokemon.java` @ `064716c`
+```java
+  public void setAmizade(int amizade) {
+    if (amizade >= AMIZADE_MINIMA && amizade <= AMIZADE_MAXIMA) {
+      this.amizade = amizade;
+    }
+  }
+```
+
+O comportamento comum às duas pokébolas mora numa classe que não pode ser instanciada:
+
+`PokebolaComEfeito.java` @ `064716c`
+```java
+public abstract class PokebolaComEfeito extends Pokebola {
+
+  protected PokebolaComEfeito(String nome, double bonus, Random random) {
+    super(nome, bonus, random);
+  }
+  protected abstract void aplicarEfeito(Pokemon pokemon);
+
+  @Override
+  public final boolean capturar(Pokemon pokemon) {
+    if (super.capturar(pokemon)) {
+      aplicarEfeito(pokemon);
+      return true;
+    }
+    return false;
+  }
+}
+```
+
+`HealBall.java` @ `064716c`
+```java
+  @Override
+  protected void aplicarEfeito(Pokemon pokemon) {
+    pokemon.setHp(pokemon.getHpMax());
+  }
+```
+
+`TestePokebola.java` @ `064716c`
+```java
+  @Test
+  public void friendBallNaoMudaAAmizadeQuandoOPokemonEscapa() {
+    assertFalse(new FriendBall(new SorteioFixo(PIOR_SORTEIO)).capturar(pikachu));
+
+    assertEquals(70, pikachu.getAmizade());
+  }
+```
+
+**Por que essa decisão?**
+* **`abstract` diz que a classe está incompleta.** Uma `PokebolaComEfeito` sem efeito não faz sentido, então `new PokebolaComEfeito(...)` não compila, e toda subclasse concreta é obrigada a escrever `aplicarEfeito`. Esquecer o efeito vira erro de compilação, e não uma pokébola que silenciosamente não faz nada.
+* **A ordem "captura, depois efeito" fica num lugar só.** Sem a classe intermediária, `FriendBall` e `HealBall` repetiriam o mesmo `if (super.capturar(...))`, e uma delas poderia aplicar o efeito antes do sorteio, curando um Pokémon que escapou. Os testes `...QuandoOPokemonEscapa` existem para essa fronteira.
+* **`super.capturar` reaproveita o sorteio.** A classe abstrata não refaz a fórmula: chama o `capturar` herdado, e os ganchos do estágio 16 continuam valendo (com bônus 1, as duas usam a taxa da pokébola comum).
+* **O `final` mudou de lugar, e isso tem um preço.** Para `PokebolaComEfeito` sobrescrever `capturar`, ele deixou de ser `final` em `Pokebola`, e a brecha que o estágio 12 fechou voltou a existir para as outras subclasses. O próprio `TesteBatalha` voltou a usar essa brecha: `PokebolaQueSempreFalha` sobrescreve `capturar` de novo. Em `PokebolaComEfeito` ele é `final`, então `FriendBall` e `HealBall` não conseguem pular o sorteio. É uma troca discutível, e um bom ponto para pensar em alternativas que mantenham `capturar` fechado em `Pokebola`.
+* **`setAmizade` segue o padrão de `setHp`.** Um valor fora da faixa é ignorado e o anterior é mantido. A amizade inicial vem da espécie, como o HP máximo do estágio 15: quem cria o Pokémon não a informa.
+* **Mais pokébolas, mais espaço na mochila.** `MAX_POKEBOLAS` passou de 6 para 8, para o treinador começar com uma de cada tipo.
+
 ---
 
 ## 🛠️ Tecnologias Utilizadas
@@ -958,6 +1093,9 @@ No jogo, digite `cima`, `baixo`, `esq` ou `dir` para mover o `T` e `sair` para e
 * `Jogo.mover` devolve `null` quando não há batalha. Depois de ver generics, reescreva-o com `Optional<Batalha>` e compare o código de `JogoConsole` nas duas versões.
 * Abra `Especie` e procure uma espécie com mais de 200 kg e outra com velocidade de pelo menos 100. Crie um `Pokemon` de cada no nível 50 e calcule à mão o HP máximo antes de conferir com `getHp()`.
 * Reescreva `calcularHpMax` dividindo antes de multiplicar e rode `TestePokemon`. Explique o valor que o teste passa a receber.
+* Escreva uma `NetBall` que multiplique o bônus por 3 para alguma condição da espécie. Decida qual gancho do estágio 16 ela deve sobrescrever e escreva o teste com `SorteioFixo` antes.
+* Devolva o `final` ao `capturar` de `Pokebola` e veja o que deixa de compilar. Proponha uma forma de `FriendBall` e `HealBall` aplicarem o efeito sem sobrescrever `capturar`.
+* Tente instanciar `PokebolaComEfeito` diretamente e leia a mensagem do compilador. Depois, crie uma subclasse sem `aplicarEfeito` e compare as mensagens.
 * Reflita: `JogoConsole` não tem testes. Que tipo de mudança faria você querer testá-la, e onde essa lógica deveria morar?
 
 ---
